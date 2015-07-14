@@ -1,4 +1,4 @@
-HA$PBExportHeader$n_cst_dps_pse.sru
+$PBExportHeader$n_cst_dps_pse.sru
 forward
 global type n_cst_dps_pse from nonvisualobject
 end type
@@ -6,6 +6,12 @@ end forward
 
 global type n_cst_dps_pse from nonvisualobject autoinstantiate
 end type
+
+type variables
+Public:
+long	iInFoundPos
+
+end variables
 
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
@@ -91,13 +97,13 @@ public function byte iif (boolean ab_exp, byte abte_true, byte abte_false)
 public function boolean iif (boolean ab_exp, boolean ab_true, boolean ab_false)
 public function boolean iin (any aa_val, any aa_array[])
 public function boolean iin (powerobject apo_val, powerobject apo_array[])
-public function boolean iin (char ac_val, char ac_array[])
+public function boolean iin (character ac_val, character ac_array[])
 public function boolean iin (string as_val, string as_array[])
 public function boolean iin (integer ai_val, integer ai_array[])
-public function boolean iin (uint aui_val, uint aui_array[])
+public function boolean iin (unsignedinteger aui_val, unsignedinteger aui_array[])
 public function boolean iin (long al_val, long al_array[])
 public function boolean iin (longlong all_val, longlong all_array[])
-public function boolean iin (ulong aul_val, ulong aul_array[])
+public function boolean iin (unsignedlong aul_val, unsignedlong aul_array[])
 public function boolean iin (double adbl_val, double adbl_array[])
 public function boolean iin (real ar_val, real ar_array[])
 public function boolean iin (date ad_val, date ad_array[])
@@ -106,6 +112,46 @@ public function boolean iin (time at_val, time at_array[])
 public function boolean iin (decimal adec_val, decimal adec_array[])
 public function boolean iin (blob ablob_val, blob ablob_array[])
 public function boolean iin (byte abte_val, byte abte_array[])
+public function integer ifor (ref any aa_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref integer ai_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref uint aui_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref long al_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref longlong al_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref ulong aa_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref double adbl_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref decimal adec_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref real ar_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref string as_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref char ac_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref byte abte_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref powerobject apo_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref date ad_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref datetime adt_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref time at_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref)
+public function integer ifor (ref any aa_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref integer ai_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref uint aui_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref long al_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref longlong all_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref ulong aul_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref double adbl_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref decimal adec_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref real ar_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref string as_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref char ac_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref byte abte_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref powerobject apo_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref date ad_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref datetime adt_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function integer ifor (ref time at_array[], integer ai_start, integer ai_end, ref powerobject apo_ref)
+public function boolean checkfileextension (readonly string as_filename, readonly string as_extension)
+public function integer setfileextension (ref string as_filename, readonly string as_extension)
+public function boolean iin (readonly string as_val, readonly string as_source)
+public function integer clone (datastore ads_original, ref datastore ads_clone)
+public function integer clone (datastore ads_original, ref datawindow adw_clone)
+public function integer clone (datawindow adw_original, ref datastore ads_clone)
+public function integer clone (datawindow adw_original, ref datawindow adw_clone)
+public function integer clone (powerobject apo_original, ref powerobject apo_clone)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -579,7 +625,10 @@ if this.ismissing( aa_val) then return false
 if this.isempty(  aa_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if aa_val = aa_array[li_i] then return true
+	if aa_val = aa_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -593,21 +642,27 @@ if this.ismissing( apo_val) then return false
 if this.isempty(  apo_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if apo_val = apo_array[li_i] then return true
+	if apo_val = apo_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
 
 end function
 
-public function boolean iin (char ac_val, char ac_array[]);integer	li_i
+public function boolean iin (character ac_val, character ac_array[]);integer	li_i
 integer	li_limit
 
 if this.ismissing( ac_val) then return false
 if this.isempty(  ac_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if ac_val = ac_array[li_i] then return true
+	if ac_val = ac_array[li_i] then
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -621,7 +676,10 @@ if this.ismissing( as_val) then return false
 if this.isempty(  as_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if as_val = as_array[li_i] then return true
+	if as_val = as_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -642,14 +700,17 @@ return false
 
 end function
 
-public function boolean iin (uint aui_val, uint aui_array[]);integer	li_i
+public function boolean iin (unsignedinteger aui_val, unsignedinteger aui_array[]);integer	li_i
 integer	li_limit
 
 if this.ismissing( aui_val) then return false
 if this.isempty(  aui_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if aui_val = aui_array[li_i] then return true
+	if aui_val = aui_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -663,7 +724,10 @@ if this.ismissing( al_val) then return false
 if this.isempty(  al_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if al_val = al_array[li_i] then return true
+	if al_val = al_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -677,21 +741,27 @@ if this.ismissing( all_val) then return false
 if this.isempty(  all_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if all_val = all_array[li_i] then return true
+	if all_val = all_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
 
 end function
 
-public function boolean iin (ulong aul_val, ulong aul_array[]);integer	li_i
+public function boolean iin (unsignedlong aul_val, unsignedlong aul_array[]);integer	li_i
 integer	li_limit
 
 if this.ismissing( aul_val) then return false
 if this.isempty(  aul_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if aul_val = aul_array[li_i] then return true
+	if aul_val = aul_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -705,7 +775,10 @@ if this.ismissing( adbl_val) then return false
 if this.isempty(  adbl_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if adbl_val = adbl_array[li_i] then return true
+	if adbl_val = adbl_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -719,7 +792,10 @@ if this.ismissing( ar_val) then return false
 if this.isempty(  ar_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if ar_val = ar_array[li_i] then return true
+	if ar_val = ar_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -733,7 +809,10 @@ if this.ismissing( ad_val) then return false
 if this.isempty(  ad_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if ad_val = ad_array[li_i] then return true
+	if ad_val = ad_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -761,7 +840,10 @@ if this.ismissing( at_val) then return false
 if this.isempty(  at_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if at_val = at_array[li_i] then return true
+	if at_val = at_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -775,7 +857,10 @@ if this.ismissing( adec_val) then return false
 if this.isempty(  adec_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if adec_val = adec_array[li_i] then return true
+	if adec_val = adec_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -789,7 +874,10 @@ if this.ismissing( ablob_val) then return false
 if this.isempty(  ablob_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if ablob_val = ablob_array[li_i] then return true
+	if ablob_val = ablob_array[li_i] then 
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
@@ -803,10 +891,897 @@ if this.ismissing( abte_val) then return false
 if this.isempty(  abte_array, li_limit ) then return false
 
 for li_i = 1 to li_limit
-	if abte_val = abte_array[li_i] then return true
+	if abte_val = abte_array[li_i] then
+		iinfoundpos = li_i
+		return true
+	end if
 next
 
 return false
+
+end function
+
+public function integer ifor (ref any aa_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( aa_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( aa_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref integer ai_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( ai_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( ai_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref uint aui_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( aui_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( aui_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref long al_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( al_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( al_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref longlong al_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( al_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( al_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref ulong aa_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( aa_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( aa_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref double adbl_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( adbl_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( adbl_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref decimal adec_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( adec_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( adec_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref real ar_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( ar_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( ar_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref string as_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( as_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( as_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref char ac_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( ac_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( ac_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref byte abte_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( abte_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( abte_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref powerobject apo_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( apo_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( apo_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref date ad_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( ad_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( ad_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref datetime adt_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( adt_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( adt_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref time at_array[], boolean ab_logicexp, ref integer ai_counter, ref powerobject apo_ref);integer	li_limit
+
+if this.isempty( at_array, li_limit ) then return -1
+if this.isMissing( ab_logicexp ) then return -1
+if this.isMissing( ai_counter ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+do while ab_logicexp and ai_counter <= li_limit
+	apo_ref.dynamic event ue_ifor( at_array[ai_counter] )
+	ai_counter++
+loop
+
+return 1
+end function
+
+public function integer ifor (ref any aa_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( aa_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( aa_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( aa_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref integer ai_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( ai_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( ai_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( ai_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref uint aui_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( aui_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( aui_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( aui_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref long al_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( al_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( al_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( al_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref longlong all_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( all_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( all_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( all_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref ulong aul_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( aul_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( aul_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( aul_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref double adbl_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( adbl_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( adbl_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( adbl_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref decimal adec_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( adec_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( adec_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( adec_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref real ar_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( ar_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( ar_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( ar_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref string as_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( as_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( as_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( as_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref char ac_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( ac_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( ac_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( ac_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref byte abte_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( abte_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( abte_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( abte_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref powerobject apo_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( apo_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( apo_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( apo_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref date ad_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( ad_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( ad_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( ad_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref datetime adt_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( adt_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( adt_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( adt_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function integer ifor (ref time at_array[], integer ai_start, integer ai_end, ref powerobject apo_ref);integer	li_limit
+integer	li_i
+
+if this.isempty( at_array, li_limit ) then return -1
+if this.isMissing( ai_start ) then return -1
+if this.isMissing( ai_end ) then return -1
+if this.isNullOrInvalid( apo_ref ) then return -1
+
+if ai_start<= ai_end then
+	for li_i = ai_start to ai_end 
+		apo_ref.dynamic event ue_ifor( at_array[li_i] )
+	next
+else	
+	for li_i = ai_start to ai_end step -1
+		apo_ref.dynamic event ue_ifor( at_array[li_i] )
+	next
+end if
+
+return 1
+end function
+
+public function boolean checkfileextension (readonly string as_filename, readonly string as_extension);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		checkfileextension
+//
+// Access:			Public
+//
+// Arguments:
+// as_filename:		The name of the file to check its extension.
+// as_extension:			The extension that should have the specified
+//						filename (as_filename)
+//
+// Returns:			integer
+//						True, it is equal
+//						False, it is not equal
+//
+// Description:	Checks that extension of the specified filename is equal
+//						to the one specified.
+//
+// Usage:			Call this method to check if a filen has the right
+//							extension
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//  V1.0	PDO	03/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+// Check Parameters
+if this.IsMissing( as_filename ) then return false
+if this.IsMissing( as_extension ) then return false
+
+// Verify that the filename has an extension defined
+if this.iIn( ".", as_filename ) = false then return false
+
+// Verify that the filename's extension is equal to the one specified
+if right( as_filename, len( as_extension ) ) <> as_extension then return false
+
+return true
+
+end function
+
+public function integer setfileextension (ref string as_filename, readonly string as_extension);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		setfileextension
+//
+// Access:			Public
+//
+// Arguments:
+// as_filename:		The filename that its extension should be set (by
+//						ref)
+// as_extension:			The extension value to be set. It must begin by a dot.
+//
+// Returns:			integer
+//						 1, ok
+//						-1, An error occurs
+//
+// Description:	Set the extension of the specified filename to the one
+//						specified.
+//
+// Usage:			Call this method to set/replace the extension of the
+//							specified filename.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	 V1.0	PDO	03/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+// Check parameters
+if this.IsMissing( as_filename ) then return -1
+if this.IsMissing( as_extension ) then return -1
+
+// Check that the specified extension begin with a dot
+if left( as_extension, 1 ) <> "." then return -1
+
+// Set the extension according to the situation found
+
+if this.iIn( ".", as_filename ) = true then
+	// The filename contains already an extension -> replace it
+	as_filename = left( as_filename, this.iinfoundpos - 1) + as_extension
+else
+	// The filename does not contains any extension -> append it
+	as_filename += as_extension
+end if
+
+return 1
+
+end function
+
+public function boolean iin (readonly string as_val, readonly string as_source);if this.IsMissing( as_val ) then return false
+if this.IsMissing( as_source ) then return false
+
+this.iinfoundpos = pos( as_source, as_val ) 
+
+return ( this.iinfoundpos > 0)
+end function
+
+public function integer clone (datastore ads_original, ref datastore ads_clone);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		clone
+//
+// Access:			Public
+//
+// Arguments:
+// ads_original:		The datastore to be clonned
+// ads_clone:			The copy datastore object. If it does not
+//						exists, it is automatically instancied.
+//
+// Returns:			integer
+//						1, OK
+//						-1, An error occurs
+//
+// Description:	Clone a specifided datastore content into another one.
+//
+// Usage:			Call this method to make a copy of a datastore into 
+//							another datastore object.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	 V1.0	14/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.IsNullorInvalid( ads_original ) then return -1
+if this.IsNullorInvalid( ads_clone ) then 
+	ads_clone = create datastore
+end if
+
+ads_clone.dataobject = ads_original.dataobject
+ads_clone.object.data = ads_original.object.data
+
+return 1
+
+
+end function
+
+public function integer clone (datastore ads_original, ref datawindow adw_clone);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		clone
+//
+// Access:			Public
+//
+// Arguments:
+// ads_original:		The datastore to be cleaned
+// adw_clone:			The copy datawindow control. If it does not
+//						exists, it is automatically instancied.
+//
+// Returns:			integer
+//						1, OK
+//						-1, An error occurs
+//
+// Description:	Clone a specifided datastore content into a datawindow
+//						control.
+//
+// Usage:			Call this method to make a copy of a datastore into a
+//							datawindow control.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	 V1.0	14/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.IsNullorInvalid( ads_original ) then return -1
+if this.IsNullorInvalid( adw_clone ) then 
+	adw_clone = create datawindow
+end if
+
+adw_clone.dataobject = ads_original.dataobject
+adw_clone.object.data = ads_original.object.data
+
+return 1
+
+
+end function
+
+public function integer clone (datawindow adw_original, ref datastore ads_clone);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		clone
+//
+// Access:			Public
+//
+// Arguments:
+// adw_original:		The datawindow control to be clonned
+// ads_clone:			The copy datastore object. If it does not
+//						exists, it is automatically instancied.
+//
+// Returns:			integer
+//						1, OK
+//						-1, An error occurs
+//
+// Description:	Clone a specifided datawindow content into a datastore
+//						object.
+//
+// Usage:			Call this method to make a copy of a datawindow into a
+//							datastore object.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	 V1.0	14/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.IsNullorInvalid( adw_original ) then return -1
+if this.IsNullorInvalid( ads_clone ) then 
+	ads_clone = create datastore
+end if
+
+ads_clone.dataobject = adw_original.dataobject
+ads_clone.object.data = adw_original.object.data
+
+return 1
+
+
+end function
+
+public function integer clone (datawindow adw_original, ref datawindow adw_clone);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		clone
+//
+// Access:			Public
+//
+// Arguments:
+// adw_original:		The datawindow control to be clonned
+// adw_clone:			The copy datawindow control. If it does not
+//						exists, it is automatically instancied.
+//
+// Returns:			integer
+//						1, OK
+//						-1, An error occurs
+//
+// Description:	Clone a specifided datawindow content into a datawindow
+//						control.
+//
+// Usage:			Call this method to make a copy of a datawindow into a
+//							datawindow control.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	 V1.0	14/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.IsNullorInvalid( adw_original ) then return -1
+if this.IsNullorInvalid( adw_clone ) then 
+	adw_clone = create datawindow
+end if
+
+adw_clone.dataobject = adw_original.dataobject
+adw_clone.object.data = adw_original.object.data
+
+return 1
+
+
+end function
+
+public function integer clone (powerobject apo_original, ref powerobject apo_clone);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		clone
+//
+// Access:			Public
+//
+// Arguments:
+// apo_original:		The datastore to be clonned
+// apo_clone:			The copy datastore object. If it does not
+//						exists, it is automatically instancied.
+//
+// Returns:			integer
+//						1, OK
+//						-1, An error occurs
+//
+// Description:	Clone a specifided datastore content into another one.
+//
+// Usage:			Call this method to make a copy of a datastore into 
+//							another datastore object.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	 V1.0	14/07/2015	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.IsNullorInvalid( apo_original ) then return -1
+if this.IsNullorInvalid( apo_clone ) then 
+	apo_clone = create using apo_original.classname()
+end if
+
+apo_clone = apo_original
+
+return 1
+
 
 end function
 
@@ -822,7 +1797,7 @@ end on
 
 event constructor;//////////////////////////////////////////////////////////////////////////////
 //
-// n_cst_dps: PowerScript #xtension Library <EXCLUDE>
+// n_cst_dps: PowerScript #xtension Library 
 //
 // Object:			A usefull Powerscript extension library under the form
 //						of an helper autoinstancied object offering some usefull
@@ -830,7 +1805,7 @@ event constructor;//////////////////////////////////////////////////////////////
 //						smaller & stronger code.
 //
 // Usage:			Use this class as Global or Instance Variable, using for
-//						example # or _ as variable name in order to preoduce a
+//						example # or _ as variable name in order to produce a
 //						more conscise code.
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -840,6 +1815,31 @@ event constructor;//////////////////////////////////////////////////////////////
 // Version
 // 1.0		(c) 2015 dp Software
 //////////////////////////////////////////////////////////////////////////////
+//
+// Simplified BSD License (BSD)
+// Copyright (c) 2015, dP Software
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification, are permitted 
+// provided that the following conditions are met:
+//
+// * Redistributions of source code must retain the above copyright notice, this list of conditions 
+//   and the following disclaimer.
+//
+// * Redistributions in binary form must reproduce the above copyright notice, this list of conditions 
+//   and the following disclaimer in the documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+//  OR BUSINESS INTERRUPTION) 
+//	HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+//	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE
 
