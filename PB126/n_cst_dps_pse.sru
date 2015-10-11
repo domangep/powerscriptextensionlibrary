@@ -2,9 +2,19 @@ HA$PBExportHeader$n_cst_dps_pse.sru
 forward
 global type n_cst_dps_pse from nonvisualobject
 end type
+type ostr_dictionnary from structure within n_cst_dps_pse
+end type
+type ids_dictionnary from datastore within n_cst_dps_pse
+end type
 end forward
 
+type ostr_dictionnary from structure
+	string		is_key
+	any		ia_value
+end type
+
 global type n_cst_dps_pse from nonvisualobject autoinstantiate
+ids_dictionnary ids_dictionnary
 end type
 
 forward prototypes
@@ -106,6 +116,16 @@ public function boolean iin (time at_val, time at_array[])
 public function boolean iin (decimal adec_val, decimal adec_array[])
 public function boolean iin (blob ablob_val, blob ablob_array[])
 public function boolean iin (byte abte_val, byte abte_array[])
+private function integer _pse_create_dictionnary ()
+private function long _pse_dict_add_entry ()
+private function long _pse_dict_find_key (string as_dictionnary, string as_key)
+private function integer _pse_dict_set_entry (long al_row, string as_dictionnary, string as_key, any aa_value)
+public function integer setdata (string as_dictionnary, string as_key, any aa_value)
+private function long _pse_dict_delete_dictionnary (string as_dictionnary)
+private function integer _pse_dict_delete_entry (string as_dictionnary, string as_key)
+public function integer getdata (string as_dictionnary, string as_key, ref any aa_value)
+public function integer deletedata (string as_dictionnary, string as_key)
+public function integer deletedata (string as_dictionnary)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -810,14 +830,317 @@ return false
 
 end function
 
+private function integer _pse_create_dictionnary ();//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_create_dictionnary
+//
+// Access:			Private
+//
+// Returns:			integer
+//						 1, OK
+//						 0, Nothing done - Dictionnary already created
+//						-1, An error occurs
+//
+// Description:	This internal method create the data dictionnary by
+//						creating the corresponding datastore.
+//
+// Usage:			This internal method is called when the end user is
+//							invoking a data dictionnary related method.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		11/10/2015		Initial Version
+//////////////////////////////////////////////////////////////////////////////
+
+integer 	li_rc
+string		ls_syntax
+
+if this.isnullorinvalid( ids_dictionnary) then
+	ls_syntax = "release 12.6; " + &
+					"datawindow(units=0 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=1 HTMLDW=no print.printername=~"~" print.documentname=~"~" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file=~"~" grid.lines=0 ) " + &
+					"header(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
+					"summary(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
+					"footer(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
+					"detail(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
+					"table(column=(type=char(255) updatewhereclause=yes name=dictionnary dbname=~"dictionnary~" ) " + &
+					"column=(type=char(255) updatewhereclause=yes name=key dbname=~"key~" ) " + &
+					"column=(type=char(32767) updatewhereclause=yes name=val dbname=~"val~" ) " + &
+					") " + &
+					"htmltable(border=~"1~" ) " + &
+					"htmlgen(clientevents=~"1~" clientvalidation=~"1~" clientcomputedfields=~"1~" clientformatting=~"0~" clientscriptable=~"0~" generatejavascript=~"1~" encodeselflinkargs=~"1~" netscapelayers=~"0~" pagingmethod=0 generatedddwframes=~"1~" ) " + &
+					"xhtmlgen() cssgen(sessionspecific=~"0~" ) " + &
+					"xmlgen(inline=~"0~" ) " + &
+					"xsltgen() " + &
+					"jsgen() " + &
+					"export.xml(headgroups=~"1~" includewhitespace=~"0~" metadatatype=0 savemetadata=0 ) " + &
+					"import.xml() " + &
+					"export.pdf(method=0 distill.custompostscript=~"0~" xslfop.print=~"0~" ) " + &
+					"export.xhtml()"
+
+	li_rc = ids_dictionnary.create( ls_syntax)
+else
+	li_rc = 0
+end if
+
+return li_rc
+end function
+
+private function long _pse_dict_add_entry ();//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_add_entry
+//
+// Access:			Private
+//
+// Returns:			long
+//						The new record number, or
+//						-1, if an error occurs
+//
+// Description:	Internal method adding a new emptry record in the data
+//						dictionnary.
+//
+// Usage:			This method is called by the SetData method when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+return  this.ids_dictionnary.insertrow(0)
+
+end function
+
+private function long _pse_dict_find_key (string as_dictionnary, string as_key);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_find_key
+//
+// Access:			Private
+//
+// Arguments:
+// as_dictionnary:		The name of the data dictionnary in which to find
+//						as_key
+// as_key:			The name of the key in as_dictionnary to find its
+//						corresponding entry  number.
+//
+// Returns:			long
+//						 >0, ok
+//						   0, Not found
+//						 -1, An error occurs
+//
+// Description:	Find data dictionnary entry of specified Key. 
+//
+// Usage:			This internal method is called when the system need to
+//							know in what data dictionnary entry is stored a
+//							dictionnary key.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+string ls_find
+long	ll_rc
+
+if this.ismissing( as_dictionnary ) then return -1
+if this.ismissing( as_key ) then return -1
+
+ls_find = "dictionnary = '"+as_dictionnary+"' and key = '"+as_key+"'"
+
+this.ids_dictionnary.setsort( "dictionnary asc, key asc")
+this.ids_dictionnary.sort( )
+
+ll_rc = this.ids_dictionnary.find( ls_find, 1, this.ids_dictionnary.rowcount( ))
+
+return ll_rc
+end function
+
+private function integer _pse_dict_set_entry (long al_row, string as_dictionnary, string as_key, any aa_value);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_set_entry
+//
+// Access:			Private
+//
+// Arguments:
+// al_row:		The row which will hold the value of the
+//						specified data dictionnary entry
+// as_dictionnary:			The name of the data dictionnary for which an
+//						entry is to be set
+// as_key:			The key name of the data dictionnary  entry to be
+//						set
+// aa_value:			The value of the data dictionnary entry to be set
+//
+// Returns:			integer
+//						 1, OK
+//						-1, An error occurs
+//
+// Description:	Internal method setting speciified data dictionnary entry
+//						values.
+//
+// Usage:			This method is called automatically when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.ismissing( al_row ) then return -1
+if al_row < 1 or al_row > this.ids_dictionnary.rowcount() then return -1
+
+if this.ismissing( as_dictionnary ) then return -1
+if this.ismissing( as_key ) then return -1
+
+if this.ids_dictionnary.SetItem( al_row, "dictionnary", as_dictionnary ) = -1 then return -1
+if this.ids_dictionnary.SetItem( al_row, "key", as_key ) = -1 then return -1
+if this.ids_dictionnary.SetItem( al_row, "val", aa_value ) = -1 then return -1
+
+return 1
+
+end function
+
+public function integer setdata (string as_dictionnary, string as_key, any aa_value);long	ll_rc
+
+if this.ismissing( as_dictionnary ) then return -1
+if this.ismissing( as_key ) then return -1
+if this._pse_create_dictionnary( ) = -1 then return -1
+
+ll_rc = this._pse_dict_find_key( as_dictionnary , as_key )
+if ll_rc = -1 then return -1
+if ll_rc = 0 then 
+	ll_rc = this._pse_dict_add_entry( )
+	if ll_rc = -1 then return -1
+	if this._pse_dict_set_entry( ll_rc, as_dictionnary , as_key , aa_value ) = -1 then return -1
+end if
+
+return 1
+end function
+
+private function long _pse_dict_delete_dictionnary (string as_dictionnary);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_delete_dictionnary
+//
+// Access:			Private
+//
+// Arguments:
+// as_dictionnary:		The name of the dictrionnary to delete all it's
+//						entries.
+//
+// Returns:			long
+//						the number of deleted entries, or
+//						 0, if no entry found
+//						-1, if an error occurs
+//
+// Description:	Delete all entries of specified data dictionnary.
+//
+// Usage:			This internal method is automatically called when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+long		ll_rc
+string		ls_filter
+
+if this.ismissing( as_dictionnary ) then return -1
+
+ls_filter = "dictionnary = '"+as_dictionnary+"'"
+if this.ids_dictionnary.setfilter( ls_filter) = -1 then return -1
+if this.ids_dictionnary.filter( ) = -1 then return -1
+
+ll_rc = this.ids_dictionnary.rowcount( )
+if ll_rc = 0 then return 0
+
+do while this.ids_dictionnary.rowcount( ) > 0
+	this.ids_dictionnary.deleterow(1)
+loop
+
+if this.ids_dictionnary.setfilter( "" ) = -1 then return -1
+if this.ids_dictionnary.filter( ) = -1 then return -1
+
+return ll_rc
+
+end function
+
+private function integer _pse_dict_delete_entry (string as_dictionnary, string as_key);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_delete_entry
+//
+// Access:			Private
+//
+// Arguments:
+// as_dictionnary:		The name of the dictionnary of the entry to delete
+// as_key:			The name of the key of the entry to delete
+//
+// Returns:			integer
+//						 1, OK
+//						 0, Nothing done - entry not found
+//						-1, An error occurs
+//
+// Description:	Delete specified data dictionnary entry.
+//
+// Usage:			This internal method is called when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+long ll_rc
+
+ll_rc = this._pse_dict_find_key( as_dictionnary , as_key )
+if ll_rc = -1 then return -1
+if ll_rc = 0 then return 0
+
+if this.ids_dictionnary.deleterow( ll_rc) = -1 then return -1
+
+return 1
+end function
+
+public function integer getdata (string as_dictionnary, string as_key, ref any aa_value);long ll_rc
+
+ll_rc = this._pse_dict_find_key( as_dictionnary , as_key )
+if ll_rc < 1 then return -1
+
+aa_value = this.ids_dictionnary.object.val[ll_rc]
+
+return 1
+end function
+
+public function integer deletedata (string as_dictionnary, string as_key);return this._pse_dict_delete_entry( as_dictionnary , as_key )
+
+end function
+
+public function integer deletedata (string as_dictionnary);return this._pse_dict_delete_dictionnary( as_dictionnary )
+
+end function
+
 on n_cst_dps_pse.create
 call super::create
+this.ids_dictionnary=create ids_dictionnary
 TriggerEvent( this, "constructor" )
 end on
 
 on n_cst_dps_pse.destroy
 TriggerEvent( this, "destructor" )
 call super::destroy
+destroy(this.ids_dictionnary)
 end on
 
 event constructor;//////////////////////////////////////////////////////////////////////////////
@@ -885,4 +1208,17 @@ etc.
 
   SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE */
 end event
+
+type ids_dictionnary from datastore within n_cst_dps_pse descriptor "pb_nvo" = "true" 
+end type
+
+on ids_dictionnary.create
+call super::create
+TriggerEvent( this, "constructor" )
+end on
+
+on ids_dictionnary.destroy
+TriggerEvent( this, "destructor" )
+call super::destroy
+end on
 
