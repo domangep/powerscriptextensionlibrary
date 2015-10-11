@@ -2,16 +2,9 @@ HA$PBExportHeader$n_cst_dps_pse.sru
 forward
 global type n_cst_dps_pse from nonvisualobject
 end type
-type ostr_dictionnary from structure within n_cst_dps_pse
-end type
 type ids_dictionnary from datastore within n_cst_dps_pse
 end type
 end forward
-
-type ostr_dictionnary from structure
-	string		is_key
-	any		ia_value
-end type
 
 global type n_cst_dps_pse from nonvisualobject autoinstantiate
 ids_dictionnary ids_dictionnary
