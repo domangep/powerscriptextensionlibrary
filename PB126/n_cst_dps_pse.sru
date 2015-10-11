@@ -10,6 +10,10 @@ global type n_cst_dps_pse from nonvisualobject autoinstantiate
 ids_dictionnary ids_dictionnary
 end type
 
+type variables
+Private:
+boolean _pse_dict_created
+end variables
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
 public function integer isnull (ref integer ai_value, integer ai_ifnullvalue)
@@ -851,7 +855,7 @@ private function integer _pse_create_dictionnary ();////////////////////////////
 integer 	li_rc
 string		ls_syntax
 
-if this.isnullorinvalid( ids_dictionnary) then
+if this._pse_dict_created= false then
 	ls_syntax = "release 12.6; " + &
 					"datawindow(units=0 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=1 HTMLDW=no print.printername=~"~" print.documentname=~"~" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file=~"~" grid.lines=0 ) " + &
 					"header(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
@@ -874,6 +878,9 @@ if this.isnullorinvalid( ids_dictionnary) then
 					"export.xhtml()"
 
 	li_rc = ids_dictionnary.create( ls_syntax)
+	if li_rc = 1 then
+		_pse_dict_created = true
+	end if
 else
 	li_rc = 0
 end if
