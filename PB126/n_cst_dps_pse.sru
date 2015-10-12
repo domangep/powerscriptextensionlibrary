@@ -14,6 +14,7 @@ type variables
 Private:
 boolean _pse_dict_created
 end variables
+
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
 public function integer isnull (ref integer ai_value, integer ai_ifnullvalue)
@@ -1002,7 +1003,7 @@ if this.ismissing( as_key ) then return -1
 
 if this.ids_dictionnary.SetItem( al_row, "dictionnary", as_dictionnary ) = -1 then return -1
 if this.ids_dictionnary.SetItem( al_row, "key", as_key ) = -1 then return -1
-if this.ids_dictionnary.SetItem( al_row, "val", aa_value ) = -1 then return -1
+if this.ids_dictionnary.SetItem( al_row, "val", string(aa_value) ) = -1 then return -1
 
 return 1
 
@@ -1019,10 +1020,9 @@ if ll_rc = -1 then return -1
 if ll_rc = 0 then 
 	ll_rc = this._pse_dict_add_entry( )
 	if ll_rc = -1 then return -1
-	if this._pse_dict_set_entry( ll_rc, as_dictionnary , as_key , aa_value ) = -1 then return -1
 end if
 
-return 1
+return this._pse_dict_set_entry( ll_rc, as_dictionnary , as_key , aa_value )
 end function
 
 private function long _pse_dict_delete_dictionnary (string as_dictionnary);//////////////////////////////////////////////////////////////////////////////
