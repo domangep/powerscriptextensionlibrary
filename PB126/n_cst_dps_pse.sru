@@ -2,17 +2,24 @@ HA$PBExportHeader$n_cst_dps_pse.sru
 forward
 global type n_cst_dps_pse from nonvisualobject
 end type
-type ids_dictionnary from datastore within n_cst_dps_pse
+type ids_dictionary from datastore within n_cst_dps_pse
 end type
 end forward
 
 global type n_cst_dps_pse from nonvisualobject autoinstantiate
-ids_dictionnary ids_dictionnary
+ids_dictionary ids_dictionary
 end type
 
 type variables
+Public:
+constant integer	DICT_INI		= 1
+constant integer	DICT_TXT 	= 2
+constant integer	DICT_CSV 	= 3
+constant integer	DICT_XML 	= 4
+
 Private:
-boolean _pse_dict_created
+string		_pse_release
+
 end variables
 
 forward prototypes
@@ -114,16 +121,52 @@ public function boolean iin (time at_val, time at_array[])
 public function boolean iin (decimal adec_val, decimal adec_array[])
 public function boolean iin (blob ablob_val, blob ablob_array[])
 public function boolean iin (byte abte_val, byte abte_array[])
-private function integer _pse_create_dictionnary ()
-private function long _pse_dict_add_entry ()
-private function long _pse_dict_find_key (string as_dictionnary, string as_key)
-private function integer _pse_dict_set_entry (long al_row, string as_dictionnary, string as_key, any aa_value)
-public function integer setdata (string as_dictionnary, string as_key, any aa_value)
-private function long _pse_dict_delete_dictionnary (string as_dictionnary)
-private function integer _pse_dict_delete_entry (string as_dictionnary, string as_key)
-public function integer getdata (string as_dictionnary, string as_key, ref any aa_value)
-public function integer deletedata (string as_dictionnary, string as_key)
-public function integer deletedata (string as_dictionnary)
+private function integer _pse_set_release ()
+private function integer _pse_create_dictionary (ref datastore ads_dictionary)
+private function long _pse_dict_add_entry (ref datastore ads_dictionary)
+public function integer setdata (datastore ads_dictionary, string as_dictionary, string as_key, any aa_value)
+private function integer _pse_dict_clear (ref datastore ads_dictionary)
+private function integer _pse_dict_load (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype, boolean ab_append)
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype, boolean ab_append)
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype)
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, integer ai_filetype)
+public function integer loaddata (ref datastore ads_dictionary, string as_filename)
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, boolean ab_append)
+private function integer _pse_dict_save (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype)
+public function integer savedata (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype)
+public function integer savedata (ref datastore ads_dictionary, string as_filename, integer ai_filetype)
+public function integer savedata (ref datastore ads_dictionary, string as_filename)
+public function integer savedata (ref datastore ads_dictionary, string as_dictionary, string as_filename)
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, boolean ab_append)
+public function integer cleardata (ref datastore ads_dictionary)
+public function integer deletedata (ref datastore ads_dictionary, string as_dictionary, string as_key)
+private function long _pse_dict_delete_dictionary (ref datastore ads_dictionary, string as_dictionary)
+public function integer deletedata (ref datastore ads_dictionary, string as_dictionary)
+private function integer _pse_dict_set_entry (ref datastore ads_dictionary, long al_row, string as_dictionary, string as_key, any aa_value)
+private function integer _pse_dict_sort (ref datastore ads_dictionary, string as_sortexp)
+private function long _pse_dict_find_key (ref datastore ads_dictionary, string as_dictionary, string as_key)
+private function integer _pse_dict_delete_entry (ref datastore ads_dictionary, string as_dictionary, string as_key)
+public function integer getdata (ref datastore ads_dictionary, string as_dictionary, string as_key, ref any aa_value)
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, integer ai_filetype, boolean ab_append)
+private function long _pse_dict_filter (ref datastore ads_dictionary, string as_dictionary)
+public function integer cleardata ()
+public function integer deletedata (string as_dictionary)
+public function integer deletedata (string as_dictionary, string as_key)
+public function integer getdata (string as_dictionary, string as_key, ref any aa_value)
+public function integer setdata (string as_dictionary, string as_key, any aa_value)
+public function integer loaddata (string as_dictionary, string as_filename, boolean ab_append)
+public function integer loaddata (string as_dictionary, string as_filename, integer ai_filetype)
+public function integer loadata (string as_filename)
+public function integer loadata (string as_filename, boolean ab_append)
+public function integer loadata (string as_dictionary, string as_filename, integer ai_filetype, boolean ab_append)
+public function integer savedata (string as_dictionary, string as_filename)
+public function integer savedata (string as_dictionary, string as_filename, integer ai_filetype)
+public function integer savedata (string as_filename)
+public function integer savedata (string as_filename, integer ai_filetype)
+private function integer _pse_define_data (ref datastore ads_dictionary, string as_definition[])
+public function boolean isempty (string as_array[], ref integer ai_size)
+public function integer of_definedata (datastore ads_dictionary, string as_definition[])
+public function integer definedata (string as_definition[])
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -828,22 +871,66 @@ return false
 
 end function
 
-private function integer _pse_create_dictionnary ();//////////////////////////////////////////////////////////////////////////////
+private function integer _pse_set_release ();//////////////////////////////////////////////////////////////////////////////
 //
-// Function:		_pse_create_dictionnary
+// Function:		_pse_set_release
 //
 // Access:			Private
 //
 // Returns:			integer
 //						 1, OK
-//						 0, Nothing done - Dictionnary already created
 //						-1, An error occurs
 //
-// Description:	This internal method create the data dictionnary by
+// Description:	Set the actual PowerBuilder release number.
+//
+// Usage:			This internal method is called from the constructor event.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial Version
+//////////////////////////////////////////////////////////////////////////////
+
+Integer 	li_majver
+Integer	li_minver
+Integer	li_rc
+
+ContextInformation ci
+
+li_rc = this.GetContextService ("ContextInformation", ci)
+if li_rc < 1 then return -1
+
+if ci.GetMajorVersion(li_majver) = -1 then return -1
+if ci.GetMinorVersion(li_minver) = -1 then return -1
+
+_pse_release = string(li_majver)+"."+string(li_minver)
+
+return 1
+
+end function
+
+private function integer _pse_create_dictionary (ref datastore ads_dictionary);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_create_dictionary
+//
+// Access:			Private
+//
+// Arguments:
+// ads_dictionary:		The datastore variable that will hold the data
+//						dictionary to create
+//
+// Returns:			integer
+//						 1, OK
+//						 0, Nothing done - dictionary already created
+//						-1, An error occurs
+//
+// Description:	This internal method create the data dictionary by
 //						creating the corresponding datastore.
 //
 // Usage:			This internal method is called when the end user is
-//							invoking a data dictionnary related method.
+//							invoking a data dictionary related method.
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -856,32 +943,17 @@ private function integer _pse_create_dictionnary ();////////////////////////////
 integer 	li_rc
 string		ls_syntax
 
-if this._pse_dict_created= false then
-	ls_syntax = "release 12.6; " + &
-					"datawindow(units=0 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=1 HTMLDW=no print.printername=~"~" print.documentname=~"~" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file=~"~" grid.lines=0 ) " + &
-					"header(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
-					"summary(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
-					"footer(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
-					"detail(height=0 color=~"536870912~" transparency=~"0~" gradient.color=~"8421504~" gradient.transparency=~"0~" gradient.angle=~"0~" brushmode=~"0~" gradient.repetition.mode=~"0~" gradient.repetition.count=~"0~" gradient.repetition.length=~"100~" gradient.focus=~"0~" gradient.scale=~"100~" gradient.spread=~"100~" ) " + &
-					"table(column=(type=char(255) updatewhereclause=yes name=dictionnary dbname=~"dictionnary~" ) " + &
+if this.IsEmpty( ids_dictionary.describe("datawindow.syntax") ) then
+	if this.isempty(this._pse_release) then
+		this._pse_set_release( )
+	end if
+	ls_syntax = "release "+ this._pse_release +"; " + &
+					"table(column=(type=char(255) updatewhereclause=yes name=dictionary dbname=~"dictionary~" ) " + &
 					"column=(type=char(255) updatewhereclause=yes name=key dbname=~"key~" ) " + &
 					"column=(type=char(32767) updatewhereclause=yes name=val dbname=~"val~" ) " + &
-					") " + &
-					"htmltable(border=~"1~" ) " + &
-					"htmlgen(clientevents=~"1~" clientvalidation=~"1~" clientcomputedfields=~"1~" clientformatting=~"0~" clientscriptable=~"0~" generatejavascript=~"1~" encodeselflinkargs=~"1~" netscapelayers=~"0~" pagingmethod=0 generatedddwframes=~"1~" ) " + &
-					"xhtmlgen() cssgen(sessionspecific=~"0~" ) " + &
-					"xmlgen(inline=~"0~" ) " + &
-					"xsltgen() " + &
-					"jsgen() " + &
-					"export.xml(headgroups=~"1~" includewhitespace=~"0~" metadatatype=0 savemetadata=0 ) " + &
-					"import.xml() " + &
-					"export.pdf(method=0 distill.custompostscript=~"0~" xslfop.print=~"0~" ) " + &
-					"export.xhtml()"
-
-	li_rc = ids_dictionnary.create( ls_syntax)
-	if li_rc = 1 then
-		_pse_dict_created = true
-	end if
+					") " 
+	li_rc = ads_dictionary.create( ls_syntax)
+	
 else
 	li_rc = 0
 end if
@@ -889,7 +961,7 @@ end if
 return li_rc
 end function
 
-private function long _pse_dict_add_entry ();//////////////////////////////////////////////////////////////////////////////
+private function long _pse_dict_add_entry (ref datastore ads_dictionary);//////////////////////////////////////////////////////////////////////////////
 //
 // Function:		_pse_dict_add_entry
 //
@@ -900,7 +972,7 @@ private function long _pse_dict_add_entry ();///////////////////////////////////
 //						-1, if an error occurs
 //
 // Description:	Internal method adding a new emptry record in the data
-//						dictionnary.
+//						dictionary.
 //
 // Usage:			This method is called by the SetData method when needed.
 //
@@ -912,127 +984,269 @@ private function long _pse_dict_add_entry ();///////////////////////////////////
 // 1.0		Initial version
 //////////////////////////////////////////////////////////////////////////////
 
-return  this.ids_dictionnary.insertrow(0)
+if this.ismissing( ads_dictionary ) then return -1
+
+return  ads_dictionary.insertrow(0)
 
 end function
 
-private function long _pse_dict_find_key (string as_dictionnary, string as_key);//////////////////////////////////////////////////////////////////////////////
-//
-// Function:		_pse_dict_find_key
-//
-// Access:			Private
-//
-// Arguments:
-// as_dictionnary:		The name of the data dictionnary in which to find
-//						as_key
-// as_key:			The name of the key in as_dictionnary to find its
-//						corresponding entry  number.
-//
-// Returns:			long
-//						 >0, ok
-//						   0, Not found
-//						 -1, An error occurs
-//
-// Description:	Find data dictionnary entry of specified Key. 
-//
-// Usage:			This internal method is called when the system need to
-//							know in what data dictionnary entry is stored a
-//							dictionnary key.
-//
-//////////////////////////////////////////////////////////////////////////////
-//
-// Revision History
-//
-// Version
-// 1.0		Initial version
-//////////////////////////////////////////////////////////////////////////////
+public function integer setdata (datastore ads_dictionary, string as_dictionary, string as_key, any aa_value);long	ll_rc
 
-string ls_find
-long	ll_rc
-
-if this.ismissing( as_dictionnary ) then return -1
+if this.ismissing( ads_dictionary ) then return -1
+if this.ismissing( as_dictionary ) then return -1
 if this.ismissing( as_key ) then return -1
+if this._pse_create_dictionary( ads_dictionary ) = -1 then return -1
 
-ls_find = "dictionnary = '"+as_dictionnary+"' and key = '"+as_key+"'"
-
-this.ids_dictionnary.setsort( "dictionnary asc, key asc")
-this.ids_dictionnary.sort( )
-
-ll_rc = this.ids_dictionnary.find( ls_find, 1, this.ids_dictionnary.rowcount( ))
-
-return ll_rc
-end function
-
-private function integer _pse_dict_set_entry (long al_row, string as_dictionnary, string as_key, any aa_value);//////////////////////////////////////////////////////////////////////////////
-//
-// Function:		_pse_dict_set_entry
-//
-// Access:			Private
-//
-// Arguments:
-// al_row:		The row which will hold the value of the
-//						specified data dictionnary entry
-// as_dictionnary:			The name of the data dictionnary for which an
-//						entry is to be set
-// as_key:			The key name of the data dictionnary  entry to be
-//						set
-// aa_value:			The value of the data dictionnary entry to be set
-//
-// Returns:			integer
-//						 1, OK
-//						-1, An error occurs
-//
-// Description:	Internal method setting speciified data dictionnary entry
-//						values.
-//
-// Usage:			This method is called automatically when needed.
-//
-//////////////////////////////////////////////////////////////////////////////
-//
-// Revision History
-//
-// Version
-//	1.0		Initial version
-//////////////////////////////////////////////////////////////////////////////
-
-if this.ismissing( al_row ) then return -1
-if al_row < 1 or al_row > this.ids_dictionnary.rowcount() then return -1
-
-if this.ismissing( as_dictionnary ) then return -1
-if this.ismissing( as_key ) then return -1
-
-if this.ids_dictionnary.SetItem( al_row, "dictionnary", as_dictionnary ) = -1 then return -1
-if this.ids_dictionnary.SetItem( al_row, "key", as_key ) = -1 then return -1
-if this.ids_dictionnary.SetItem( al_row, "val", string(aa_value) ) = -1 then return -1
-
-return 1
-
-end function
-
-public function integer setdata (string as_dictionnary, string as_key, any aa_value);long	ll_rc
-
-if this.ismissing( as_dictionnary ) then return -1
-if this.ismissing( as_key ) then return -1
-if this._pse_create_dictionnary( ) = -1 then return -1
-
-ll_rc = this._pse_dict_find_key( as_dictionnary , as_key )
+ll_rc = this._pse_dict_find_key( ads_dictionary, as_dictionary , as_key )
 if ll_rc = -1 then return -1
 if ll_rc = 0 then 
-	ll_rc = this._pse_dict_add_entry( )
+	ll_rc = this._pse_dict_add_entry( ads_dictionary )
 	if ll_rc = -1 then return -1
 end if
 
-return this._pse_dict_set_entry( ll_rc, as_dictionnary , as_key , aa_value )
+return this._pse_dict_set_entry( ads_dictionary, ll_rc, as_dictionary , as_key , aa_value )
 end function
 
-private function long _pse_dict_delete_dictionnary (string as_dictionnary);//////////////////////////////////////////////////////////////////////////////
+private function integer _pse_dict_clear (ref datastore ads_dictionary);return ads_dictionary.reset( )
+
+end function
+
+private function integer _pse_dict_load (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype, boolean ab_append);integer li_rc
+integer li_file
+long	ll_rc
+long	ll_pos
+long	ll_pos2
+string	ls_dictionary
+string	ls_key
+string	ls_value
+string ls_line
+
+saveastype	lsat_type
+
+if this.ismissing( as_filename ) then return -1
+if this.ismissing( ai_filetype ) then 
+	// Determine file type according to compatible specified file extension, if any
+	if pos( as_filename, "." ) = 0 then return -1
+	choose case Upper(Right(as_filename,3))
+		case "INI"
+			ai_filetype = dict_ini
+		case "TXT"
+			ai_filetype = dict_txt
+		case "CSV"
+			ai_filetype = dict_csv
+		case "XML"
+			ai_filetype = dict_xml
+		case else
+			return -1
+	end choose
+end if
+
+// Handle Append mode
+if this.ismissing(  ab_append ) then
+	ab_append = false
+end if
+
+if ab_append = false then
+	if this._pse_dict_clear( ads_dictionary ) = -1 then return -1
+end if
+
+// Import data dictionary according to specified file type
+choose case ai_filetype
+	case dict_ini
+		
+		if pos( as_filename, ":\") = 0 then
+			as_filename = GetCurrentDirectory() +"\"+ as_filename
+		end if
+		
+		if fileexists( as_filename ) = false then return -1
+		
+		li_file = fileopen( as_filename, LineMode!, read! )
+		if li_file = -1 then return -1
+		
+		li_rc = fileread( li_file, ls_line)
+		do while li_rc  > 0
+			// Handle a new section
+			ll_pos = Pos(ls_line, "[")
+			if ll_pos > 0 then
+				ls_line = mid( ls_line, ll_pos + 1 )
+				ll_pos2 = Pos( ls_line, "]", ll_pos + 1)
+				// current section not closed, error
+				if ll_pos2 = 0 then goto file_close
+				
+				// check that current section correspond to the not empty specified one
+				ls_dictionary = left( ls_line, ll_pos2 - 1)
+				if not this.isempty( as_dictionary ) then
+					if ls_dictionary <> as_dictionary then goto next_line
+				end if
+			else
+				// Handle keys & value of current section
+				if not this.isempty( ls_dictionary ) then
+					ll_pos = pos(ls_line, "=" )
+					// No key/value entry found, read next line
+					if ll_pos = 0 then goto next_line
+					
+					// handle found key/value entry
+					ls_key = left( ls_line, ll_pos -1 )
+					ls_value = mid( ls_line, ll_pos + 1)
+
+					this.SetData( ads_dictionary, ls_dictionary, ls_key, ls_value)
+				end if
+			end if
+			
+			next_line:
+			li_rc = fileread( li_file, ls_line )
+		loop
+
+		file_close:			
+		return fileclose(li_file)
+		
+	case dict_txt
+		lsat_type = text!
+	case dict_csv
+		lsat_type = csv!
+	case dict_xml
+		lsat_type = xml!
+end choose
+
+return this.ids_dictionary.importfile( as_filename, lsat_type  )
+
+end function
+
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype, boolean ab_append);return this._pse_dict_load( ads_dictionary,  as_dictionary , as_filename , ai_filetype, ab_append )
+
+end function
+
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype);return this._pse_dict_load( ads_dictionary, as_dictionary , as_filename , ai_filetype, true )
+
+end function
+
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, integer ai_filetype);return this._pse_dict_load(ads_dictionary, "" , as_filename , ai_filetype, true )
+
+end function
+
+public function integer loaddata (ref datastore ads_dictionary, string as_filename);integer li_null
+setnull(li_null)
+
+return this._pse_dict_load( ads_dictionary, "" , as_filename , li_null, true )
+
+end function
+
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, boolean ab_append);integer li_null
+setnull(li_null)
+
+return this._pse_dict_load( ads_dictionary, "" , as_filename , li_null, ab_append )
+
+end function
+
+private function integer _pse_dict_save (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype);
+long	ll_i
+long	ll_limit
+string	ls_section
+string	ls_key
+string	ls_value
+
+saveastype	lsat_type
+
+if this.ismissing( ads_dictionary ) then return -1
+if this.ismissing( as_filename ) then return -1
+if this.ismissing( ai_filetype ) then 
+	// Determine file type according to compatible specified file extension, if any
+	if pos( as_filename, "." ) = 0 then return -1
+	choose case Upper(Right(as_filename,3))
+		case "INI"
+			ai_filetype = dict_ini
+		case "TXT"
+			ai_filetype = dict_txt
+		case "CSV"
+			ai_filetype = dict_csv
+		case "XML"
+			ai_filetype = dict_xml
+		case else
+			return -1
+	end choose
+end if
+
+// Save only entries of specified data dictionary, if empty, save entire content
+if not this.ismissing( as_dictionary ) then
+	ll_limit = this._pse_dict_filter( ads_dictionary, as_dictionary )
+else
+	ll_limit = this._pse_dict_filter( ads_dictionary, "" )
+end if
+
+// Save entries in ascending order
+this._pse_dict_sort( ads_dictionary, "dictionary asc, key asc")
+
+choose case ai_filetype
+	case dict_ini
+		if pos( as_filename, ":\") = 0 then
+			as_filename = GetCurrentDirectory() +"\"+ as_filename
+		end if
+		if fileexists( as_filename ) = false then
+			fileclose(fileopen( as_filename, Textmode!, write! ))
+		end if
+		for ll_i = 1 to ll_limit
+			ls_section 	= ads_dictionary.GetItemString( ll_i, "dictionary" )
+			ls_key			= ads_dictionary.GetItemString( ll_i, "key" )
+			ls_value		= ads_dictionary.GetItemstring( ll_i, "val" )
+			if setprofilestring( as_filename, ls_section,ls_key, ls_value ) = -1 then return -1
+		next
+		return 1
+	case dict_txt
+		lsat_type = text!
+	case dict_csv
+		lsat_type = csv!
+	case dict_xml
+		lsat_type = xml!
+end choose
+
+return ads_dictionary.saveas( as_filename, lsat_type, false )
+
+end function
+
+public function integer savedata (ref datastore ads_dictionary, string as_dictionary, string as_filename, integer ai_filetype);return this._pse_dict_save( ads_dictionary, as_dictionary , as_filename , ai_filetype )
+
+end function
+
+public function integer savedata (ref datastore ads_dictionary, string as_filename, integer ai_filetype);return this._pse_dict_save( ads_dictionary, "" , as_filename , ai_filetype )
+
+end function
+
+public function integer savedata (ref datastore ads_dictionary, string as_filename);integer li_null
+setnull(li_null)
+
+return this._pse_dict_save( ads_dictionary, "" , as_filename , li_null )
+
+end function
+
+public function integer savedata (ref datastore ads_dictionary, string as_dictionary, string as_filename);integer li_null
+setnull(li_null)
+
+return this._pse_dict_save( ads_dictionary, as_dictionary , as_filename , li_null )
+
+end function
+
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, boolean ab_append);integer li_null
+setnull( li_null )
+
+return this._pse_dict_load( ads_dictionary, as_dictionary , as_filename , li_null, true )
+
+end function
+
+public function integer cleardata (ref datastore ads_dictionary);return this._pse_dict_clear( ads_dictionary )
+end function
+
+public function integer deletedata (ref datastore ads_dictionary, string as_dictionary, string as_key);return this._pse_dict_delete_entry(  ads_dictionary, as_dictionary , as_key )
+
+end function
+
+private function long _pse_dict_delete_dictionary (ref datastore ads_dictionary, string as_dictionary);//////////////////////////////////////////////////////////////////////////////
 //
-// Function:		_pse_dict_delete_dictionnary
+// Function:		_pse_dict_delete_dictionary
 //
 // Access:			Private
 //
 // Arguments:
-// as_dictionnary:		The name of the dictrionnary to delete all it's
+// as_dictionary:		The name of the dictrionnary to delete all it's
 //						entries.
 //
 // Returns:			long
@@ -1040,7 +1254,7 @@ private function long _pse_dict_delete_dictionnary (string as_dictionnary);/////
 //						 0, if no entry found
 //						-1, if an error occurs
 //
-// Description:	Delete all entries of specified data dictionnary.
+// Description:	Delete all entries of specified data dictionary.
 //
 // Usage:			This internal method is automatically called when needed.
 //
@@ -1055,34 +1269,164 @@ private function long _pse_dict_delete_dictionnary (string as_dictionnary);/////
 long		ll_rc
 string		ls_filter
 
-if this.ismissing( as_dictionnary ) then return -1
+if this.ismissing( as_dictionary ) then return -1
 
-ls_filter = "dictionnary = '"+as_dictionnary+"'"
-if this.ids_dictionnary.setfilter( ls_filter) = -1 then return -1
-if this.ids_dictionnary.filter( ) = -1 then return -1
-
-ll_rc = this.ids_dictionnary.rowcount( )
+ll_rc = this._pse_dict_filter( ads_dictionary, as_dictionary )
 if ll_rc = 0 then return 0
 
-do while this.ids_dictionnary.rowcount( ) > 0
-	this.ids_dictionnary.deleterow(1)
+do while ads_dictionary.rowcount( ) > 0
+	ads_dictionary.deleterow(1)
 loop
 
-if this.ids_dictionnary.setfilter( "" ) = -1 then return -1
-if this.ids_dictionnary.filter( ) = -1 then return -1
+if this._pse_dict_filter( ads_dictionary, "" ) = -1 then return -1
 
 return ll_rc
 
 end function
 
-private function integer _pse_dict_delete_entry (string as_dictionnary, string as_key);//////////////////////////////////////////////////////////////////////////////
+public function integer deletedata (ref datastore ads_dictionary, string as_dictionary);return this._pse_dict_delete_dictionary( ads_dictionary, as_dictionary )
+
+end function
+
+private function integer _pse_dict_set_entry (ref datastore ads_dictionary, long al_row, string as_dictionary, string as_key, any aa_value);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_set_entry
+//
+// Access:			Private
+//
+// Arguments:
+// ads_dictionary:	 The variable that holds the data dictionnary to set entry
+//
+// al_row:		The row which will hold the value of the
+//						specified data dictionary entry
+// as_dictionary:			The name of the data dictionary for which an
+//						entry is to be set
+// as_key:			The key name of the data dictionary  entry to be
+//						set
+// aa_value:			The value of the data dictionary entry to be set
+//
+// Returns:			integer
+//						 1, OK
+//						-1, An error occurs
+//
+// Description:	Internal method setting speciified data dictionary entry
+//						values.
+//
+// Usage:			This method is called automatically when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.ismissing( ads_dictionary ) then return -1
+if this.ismissing( al_row ) then return -1
+if al_row < 1 or al_row > ads_dictionary.rowcount() then return -1
+
+if this.ismissing( as_dictionary ) then return -1
+if this.ismissing( as_key ) then return -1
+
+if ads_dictionary.SetItem( al_row, "dictionary", as_dictionary ) = -1 then return -1
+if ads_dictionary.SetItem( al_row, "key", as_key ) = -1 then return -1
+if ads_dictionary.SetItem( al_row, "val", string(aa_value) ) = -1 then return -1
+
+return 1
+
+end function
+
+private function integer _pse_dict_sort (ref datastore ads_dictionary, string as_sortexp);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_sort
+//
+// Access:			Private
+//
+// Arguments:
+// as_sortexp:		The sort expression to be used to sort data
+//						dictionary content
+//
+// Returns:			integer
+//						 1, OK
+//						-1, An error occurs
+//
+// Description:	Sort the data dictionary using specified Sort Expression.
+//
+// Usage:			This internal method is called when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	1.0	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+if this.ismissing( ads_dictionary ) then return -1
+if this.ismissing( as_sortexp ) then return -1
+
+if ads_dictionary.setsort( as_sortexp ) = -1 then return -1
+if ads_dictionary.sort() = -1 then return -1
+
+return 1
+end function
+
+private function long _pse_dict_find_key (ref datastore ads_dictionary, string as_dictionary, string as_key);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_find_key
+//
+// Access:			Private
+//
+// Arguments:
+// as_dictionary:		The name of the data dictionary in which to find
+//						as_key
+// as_key:			The name of the key in as_dictionary to find its
+//						corresponding entry  number.
+//
+// Returns:			long
+//						 >0, ok
+//						   0, Not found
+//						 -1, An error occurs
+//
+// Description:	Find data dictionary entry of specified Key. 
+//
+// Usage:			This internal method is called when the system need to
+//							know in what data dictionary entry is stored a
+//							dictionary key.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+string ls_find
+long	ll_rc
+
+if this.ismissing( ads_dictionary ) then return -1
+if this.ismissing( as_dictionary ) then return -1
+if this.ismissing( as_key ) then return -1
+
+ls_find = "dictionary = '"+as_dictionary+"' and key = '"+as_key+"'"
+
+this._pse_dict_sort( ads_dictionary, "dictionary asc, key asc" )
+
+ll_rc = ads_dictionary.find( ls_find, 1, this.ids_dictionary.rowcount( ))
+
+return ll_rc
+end function
+
+private function integer _pse_dict_delete_entry (ref datastore ads_dictionary, string as_dictionary, string as_key);//////////////////////////////////////////////////////////////////////////////
 //
 // Function:		_pse_dict_delete_entry
 //
 // Access:			Private
 //
 // Arguments:
-// as_dictionnary:		The name of the dictionnary of the entry to delete
+// as_dictionary:		The name of the dictionary of the entry to delete
 // as_key:			The name of the key of the entry to delete
 //
 // Returns:			integer
@@ -1090,7 +1434,7 @@ private function integer _pse_dict_delete_entry (string as_dictionnary, string a
 //						 0, Nothing done - entry not found
 //						-1, An error occurs
 //
-// Description:	Delete specified data dictionnary entry.
+// Description:	Delete specified data dictionary entry.
 //
 // Usage:			This internal method is called when needed.
 //
@@ -1104,43 +1448,260 @@ private function integer _pse_dict_delete_entry (string as_dictionnary, string a
 
 long ll_rc
 
-ll_rc = this._pse_dict_find_key( as_dictionnary , as_key )
+ll_rc = this._pse_dict_find_key( ads_dictionary, as_dictionary , as_key )
 if ll_rc = -1 then return -1
 if ll_rc = 0 then return 0
 
-if this.ids_dictionnary.deleterow( ll_rc) = -1 then return -1
+if ads_dictionary.deleterow( ll_rc) = -1 then return -1
 
 return 1
 end function
 
-public function integer getdata (string as_dictionnary, string as_key, ref any aa_value);long ll_rc
+public function integer getdata (ref datastore ads_dictionary, string as_dictionary, string as_key, ref any aa_value);long ll_rc
 
-ll_rc = this._pse_dict_find_key( as_dictionnary , as_key )
+ll_rc = this._pse_dict_find_key( ads_dictionary, as_dictionary , as_key )
 if ll_rc < 1 then return -1
 
-aa_value = this.ids_dictionnary.object.val[ll_rc]
+aa_value =ads_dictionary.object.val[ll_rc]
 
 return 1
 end function
 
-public function integer deletedata (string as_dictionnary, string as_key);return this._pse_dict_delete_entry( as_dictionnary , as_key )
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, integer ai_filetype, boolean ab_append);return this._pse_dict_load( ads_dictionary, "" , as_filename , ai_filetype, ab_append )
 
 end function
 
-public function integer deletedata (string as_dictionnary);return this._pse_dict_delete_dictionnary( as_dictionnary )
+private function long _pse_dict_filter (ref datastore ads_dictionary, string as_dictionary);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_filter
+//
+// Access:			Private
+//
+// Arguments:
+// as_dictionary:		The name of the dictrionnary to filter	entries.
+//							Remove actual filter if empty.
+//
+// Returns:			long
+//						the number of filtered entries, or
+//						 0, if no entry found
+//						-1, if an error occurs
+//
+// Description:	Filter entries of specified data dictionary.
+//
+// Usage:			This internal method is automatically called when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
 
+string		ls_filter
+
+if this.ismissing( ads_dictionary ) then return -1
+if isnull( as_dictionary ) then return -1
+
+if this.isempty( as_dictionary ) then
+	ls_filter = ""
+else
+	ls_filter = "dictionary = '"+as_dictionary+"'"
+end if
+
+if ads_dictionary.setfilter( ls_filter) = -1 then return -1
+if ads_dictionary.filter( ) = -1 then return -1
+
+return ads_dictionary.rowcount( )
+end function
+
+public function integer cleardata ();return this._pse_dict_clear( ids_dictionary )
+end function
+
+public function integer deletedata (string as_dictionary);return this._pse_dict_delete_dictionary( ids_dictionary, as_dictionary )
+
+end function
+
+public function integer deletedata (string as_dictionary, string as_key);return this._pse_dict_delete_entry(  ids_dictionary, as_dictionary , as_key )
+
+end function
+
+public function integer getdata (string as_dictionary, string as_key, ref any aa_value);return this.getdata( ids_dictionary, as_dictionary, as_key, aa_value )
+end function
+
+public function integer setdata (string as_dictionary, string as_key, any aa_value);return this.setdata( ids_dictionary, as_dictionary, as_key, aa_value )
+end function
+
+public function integer loaddata (string as_dictionary, string as_filename, boolean ab_append);integer li_null
+setnull( li_null )
+
+return this._pse_dict_load( ids_dictionary, as_dictionary , as_filename , li_null, true )
+
+end function
+
+public function integer loaddata (string as_dictionary, string as_filename, integer ai_filetype);return this._pse_dict_load( ids_dictionary, as_dictionary , as_filename , ai_filetype, true )
+
+end function
+
+public function integer loadata (string as_filename);integer li_null
+setnull(li_null)
+
+return this._pse_dict_load( ids_dictionary, "" , as_filename , li_null, true )
+
+end function
+
+public function integer loadata (string as_filename, boolean ab_append);integer li_null
+setnull(li_null)
+
+return this._pse_dict_load( ids_dictionary, "" , as_filename , li_null, ab_append )
+
+end function
+
+public function integer loadata (string as_dictionary, string as_filename, integer ai_filetype, boolean ab_append);return this._pse_dict_load( ids_dictionary,  as_dictionary , as_filename , ai_filetype, ab_append )
+
+end function
+
+public function integer savedata (string as_dictionary, string as_filename);integer li_null
+setnull(li_null)
+
+return this._pse_dict_save( ids_dictionary, as_dictionary , as_filename , li_null )
+
+end function
+
+public function integer savedata (string as_dictionary, string as_filename, integer ai_filetype);return this._pse_dict_save( ids_dictionary, as_dictionary , as_filename , ai_filetype )
+
+end function
+
+public function integer savedata (string as_filename);integer li_null
+setnull(li_null)
+
+return this._pse_dict_save( ids_dictionary, "" , as_filename , li_null )
+
+end function
+
+public function integer savedata (string as_filename, integer ai_filetype);return this._pse_dict_save( ids_dictionary, "" , as_filename , ai_filetype )
+
+end function
+
+private function integer _pse_define_data (ref datastore ads_dictionary, string as_definition[]);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_define_data
+//
+// Access:			Private
+//
+// Arguments:
+// ads_dictionary:		The datastore variable that will hold the data
+//						dictionary to create
+//
+// Returns:			integer
+//						 1, OK
+//						 0, Nothing done - dictionary already created
+//						-1, An error occurs
+//
+// Description:	This internal method create the data dictionary by
+//						creating the corresponding datastore.
+//
+// Usage:			This internal method is called when the end user is
+//							invoking a data dictionary related method.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		11/10/2015		Initial Version
+//////////////////////////////////////////////////////////////////////////////
+
+integer 	li_rc
+integer	li_i
+integer	li_limit
+long		ll_pos
+string		ls_tmp
+string		ls_name
+string		ls_syntax
+string		ls_type
+string 	ls_length
+
+if this.isempty( as_definition, li_limit ) then return -1
+
+if this.ismissing( ads_dictionary ) then
+	ads_dictionary = create datastore
+end if
+
+if this.IsEmpty( ads_dictionary.describe("datawindow.syntax") ) then
+	if this.isempty(this._pse_release) then
+		this._pse_set_release( )
+	end if
+	
+	ls_syntax = "release "+ this._pse_release +"; table("
+	for li_i = 1 to li_limit
+		ls_tmp = lower(trim(as_definition[li_i]))
+		
+		ll_pos = pos( ls_tmp, ":")
+		if ll_pos = 0 then return -1
+		
+		ls_name = left( ls_tmp, ll_pos - 1 )
+		ls_tmp = mid( ls_tmp, ll_pos + 1 )
+		ll_pos = pos( ls_tmp, "(" )
+		if ll_pos > 0 then
+			ls_type = left( ls_tmp, ll_pos -1)
+			if ls_type = "string" then ls_type = "char"
+			ls_tmp = mid( ls_tmp, ll_pos )
+			
+			if left( ls_tmp, 1) = "(" and right( ls_tmp, 1) = ")" then
+				ls_length = mid( ls_tmp, 2, len( ls_tmp ) - 2)
+				ll_pos = long( ls_length )
+				choose case ls_type
+					case "char"
+						if  ll_pos <1 or ll_pos > 32767 then return -1
+					case "decimal"
+						if ll_pos < 1 or ll_pos > 30 then return -1
+				end choose
+				ls_type += ls_tmp
+			else
+				choose case ls_tmp
+					case "number","date", "datetime", "time", "ulong", "long", "real"
+						ls_type = ls_tmp
+					case else
+						return -1
+				end choose
+			end if
+		else
+			ls_type = ls_tmp
+		end if
+		
+		ls_syntax += 'column=(type='+ls_type+' updatewhereclause=yes name=' + ls_name+' dbname=~"'+ ls_name +'~" ) '
+	next
+	ls_syntax += ") " 
+	
+	li_rc = ads_dictionary.create( ls_syntax)
+else
+	li_rc = 0
+end if
+
+return li_rc
+end function
+
+public function boolean isempty (string as_array[], ref integer ai_size);ai_size = Upperbound(as_array)
+return ( ai_size < 1)
+end function
+
+public function integer of_definedata (datastore ads_dictionary, string as_definition[]);return this._pse_define_data( ads_dictionary , as_definition )
+end function
+
+public function integer definedata (string as_definition[]);return this._pse_define_data( ids_dictionary , as_definition )
 end function
 
 on n_cst_dps_pse.create
 call super::create
-this.ids_dictionnary=create ids_dictionnary
+this.ids_dictionary=create ids_dictionary
 TriggerEvent( this, "constructor" )
 end on
 
 on n_cst_dps_pse.destroy
 TriggerEvent( this, "destructor" )
 call super::destroy
-destroy(this.ids_dictionnary)
+destroy(this.ids_dictionary)
 end on
 
 event constructor;//////////////////////////////////////////////////////////////////////////////
@@ -1207,17 +1768,19 @@ Checking VARIABLE Content
 etc.
 
   SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE */
+  
+
 end event
 
-type ids_dictionnary from datastore within n_cst_dps_pse descriptor "pb_nvo" = "true" 
+type ids_dictionary from datastore within n_cst_dps_pse descriptor "pb_nvo" = "true" 
 end type
 
-on ids_dictionnary.create
+on ids_dictionary.create
 call super::create
 TriggerEvent( this, "constructor" )
 end on
 
-on ids_dictionnary.destroy
+on ids_dictionary.destroy
 TriggerEvent( this, "destructor" )
 call super::destroy
 end on
