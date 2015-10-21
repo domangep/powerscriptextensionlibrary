@@ -148,7 +148,6 @@ private function long _pse_dict_find_key (ref datastore ads_dictionary, string a
 private function integer _pse_dict_delete_entry (ref datastore ads_dictionary, string as_dictionary, string as_key)
 public function integer getdata (ref datastore ads_dictionary, string as_dictionary, string as_key, ref any aa_value)
 public function integer loaddata (ref datastore ads_dictionary, string as_filename, integer ai_filetype, boolean ab_append)
-private function long _pse_dict_filter (ref datastore ads_dictionary, string as_dictionary)
 public function integer cleardata ()
 public function integer deletedata (string as_dictionary)
 public function integer deletedata (string as_dictionary, string as_key)
@@ -167,6 +166,11 @@ private function integer _pse_define_data (ref datastore ads_dictionary, string 
 public function boolean isempty (string as_array[], ref integer ai_size)
 public function integer of_definedata (datastore ads_dictionary, string as_definition[])
 public function integer definedata (string as_definition[])
+private function long _pse_dict_filter (ref datastore ads_dictionary, string as_filter)
+public function long filterdata (datastore ads_datadictionary, string as_filter)
+public function long filterdata (string as_filter)
+public function integer sortdata (datastore ads_dictionary, string as_sort)
+public function integer sortdata (string as_sort)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -1471,50 +1475,6 @@ public function integer loaddata (ref datastore ads_dictionary, string as_filena
 
 end function
 
-private function long _pse_dict_filter (ref datastore ads_dictionary, string as_dictionary);//////////////////////////////////////////////////////////////////////////////
-//
-// Function:		_pse_dict_filter
-//
-// Access:			Private
-//
-// Arguments:
-// as_dictionary:		The name of the dictrionnary to filter	entries.
-//							Remove actual filter if empty.
-//
-// Returns:			long
-//						the number of filtered entries, or
-//						 0, if no entry found
-//						-1, if an error occurs
-//
-// Description:	Filter entries of specified data dictionary.
-//
-// Usage:			This internal method is automatically called when needed.
-//
-//////////////////////////////////////////////////////////////////////////////
-//
-// Revision History
-//
-// Version
-// 1.0		Initial version
-//////////////////////////////////////////////////////////////////////////////
-
-string		ls_filter
-
-if this.ismissing( ads_dictionary ) then return -1
-if isnull( as_dictionary ) then return -1
-
-if this.isempty( as_dictionary ) then
-	ls_filter = ""
-else
-	ls_filter = "dictionary = '"+as_dictionary+"'"
-end if
-
-if ads_dictionary.setfilter( ls_filter) = -1 then return -1
-if ads_dictionary.filter( ) = -1 then return -1
-
-return ads_dictionary.rowcount( )
-end function
-
 public function integer cleardata ();return this._pse_dict_clear( ids_dictionary )
 end function
 
@@ -1690,6 +1650,56 @@ public function integer of_definedata (datastore ads_dictionary, string as_defin
 end function
 
 public function integer definedata (string as_definition[]);return this._pse_define_data( ids_dictionary , as_definition )
+end function
+
+private function long _pse_dict_filter (ref datastore ads_dictionary, string as_filter);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_filter
+//
+// Access:			Private
+//
+// Arguments:
+// as_dictionary:		The name of the dictrionnary to filter	entries.
+//							Remove actual filter if empty.
+//
+// Returns:			long
+//						the number of filtered entries, or
+//						 0, if no entry found
+//						-1, if an error occurs
+//
+// Description:	Filter entries of specified data dictionary.
+//
+// Usage:			This internal method is automatically called when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+string		ls_filter
+
+if this.ismissing( ads_dictionary ) then return -1
+if isnull( as_filter ) then return -1
+
+if ads_dictionary.setfilter( as_filter) = -1 then return -1
+if ads_dictionary.filter( ) = -1 then return -1
+
+return ads_dictionary.rowcount( )
+end function
+
+public function long filterdata (datastore ads_datadictionary, string as_filter);return this._pse_dict_filter( ads_datadictionary , as_filter )
+end function
+
+public function long filterdata (string as_filter);return this._pse_dict_filter( ids_dictionary , as_filter )
+end function
+
+public function integer sortdata (datastore ads_dictionary, string as_sort);return this._pse_dict_sort( ads_dictionary, as_sort )
+end function
+
+public function integer sortdata (string as_sort);return this._pse_dict_sort( ids_dictionary, as_sort )
 end function
 
 on n_cst_dps_pse.create
