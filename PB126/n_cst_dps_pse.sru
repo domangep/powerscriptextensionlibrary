@@ -140,8 +140,6 @@ public function integer savedata (ref datastore ads_dictionary, string as_dictio
 public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, boolean ab_append)
 public function integer cleardata (ref datastore ads_dictionary)
 public function integer deletedata (ref datastore ads_dictionary, string as_dictionary, string as_key)
-private function long _pse_dict_delete_dictionary (ref datastore ads_dictionary, string as_dictionary)
-public function integer deletedata (ref datastore ads_dictionary, string as_dictionary)
 private function integer _pse_dict_set_entry (ref datastore ads_dictionary, long al_row, string as_dictionary, string as_key, any aa_value)
 private function integer _pse_dict_sort (ref datastore ads_dictionary, string as_sortexp)
 private function long _pse_dict_find_key (ref datastore ads_dictionary, string as_dictionary, string as_key)
@@ -171,6 +169,8 @@ public function long filterdata (datastore ads_datadictionary, string as_filter)
 public function long filterdata (string as_filter)
 public function integer sortdata (datastore ads_dictionary, string as_sort)
 public function integer sortdata (string as_sort)
+private function long _pse_dict_delete_entries (ref datastore ads_dictionary, string as_deleteexp)
+public function integer deletedata (ref datastore ads_dictionary, string as_deleteexp)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -1243,55 +1243,6 @@ public function integer deletedata (ref datastore ads_dictionary, string as_dict
 
 end function
 
-private function long _pse_dict_delete_dictionary (ref datastore ads_dictionary, string as_dictionary);//////////////////////////////////////////////////////////////////////////////
-//
-// Function:		_pse_dict_delete_dictionary
-//
-// Access:			Private
-//
-// Arguments:
-// as_dictionary:		The name of the dictrionnary to delete all it's
-//						entries.
-//
-// Returns:			long
-//						the number of deleted entries, or
-//						 0, if no entry found
-//						-1, if an error occurs
-//
-// Description:	Delete all entries of specified data dictionary.
-//
-// Usage:			This internal method is automatically called when needed.
-//
-//////////////////////////////////////////////////////////////////////////////
-//
-// Revision History
-//
-// Version
-// 1.0		Initial version
-//////////////////////////////////////////////////////////////////////////////
-
-long		ll_rc
-string		ls_filter
-
-if this.ismissing( as_dictionary ) then return -1
-
-ll_rc = this._pse_dict_filter( ads_dictionary, as_dictionary )
-if ll_rc = 0 then return 0
-
-do while ads_dictionary.rowcount( ) > 0
-	ads_dictionary.deleterow(1)
-loop
-
-if this._pse_dict_filter( ads_dictionary, "" ) = -1 then return -1
-
-return ll_rc
-
-end function
-
-public function integer deletedata (ref datastore ads_dictionary, string as_dictionary);return this._pse_dict_delete_dictionary( ads_dictionary, as_dictionary )
-
-end function
-
 private function integer _pse_dict_set_entry (ref datastore ads_dictionary, long al_row, string as_dictionary, string as_key, any aa_value);//////////////////////////////////////////////////////////////////////////////
 //
 // Function:		_pse_dict_set_entry
@@ -1478,7 +1429,7 @@ end function
 public function integer cleardata ();return this._pse_dict_clear( ids_dictionary )
 end function
 
-public function integer deletedata (string as_dictionary);return this._pse_dict_delete_dictionary( ids_dictionary, as_dictionary )
+public function integer deletedata (string as_dictionary);return this._pse_dict_delete_entries( ids_dictionary, "dictionary = '"+as_dictionary+"'" )
 
 end function
 
@@ -1700,6 +1651,54 @@ public function integer sortdata (datastore ads_dictionary, string as_sort);retu
 end function
 
 public function integer sortdata (string as_sort);return this._pse_dict_sort( ids_dictionary, as_sort )
+end function
+
+private function long _pse_dict_delete_entries (ref datastore ads_dictionary, string as_deleteexp);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		_pse_dict_delete_endtries
+//
+// Access:			Private
+//
+// Arguments:
+// as_deleteexp:		The delete expression that will match entries to be deleted.
+//
+// Returns:			long
+//						the number of deleted entries, or
+//						 0, if no entry found
+//						-1, if an error occurs
+//
+// Description:	Delete all entries corresponding to the specified delete expression.
+//
+// Usage:			This internal method is automatically called when needed.
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+// 1.0		Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+long		ll_rc
+string		ls_filter
+
+if this.ismissing( as_deleteexp ) then return -1
+
+ll_rc = this._pse_dict_filter( ads_dictionary, as_deleteexp )
+if ll_rc = 0 then return 0
+
+do while ads_dictionary.rowcount( ) > 0
+	ads_dictionary.deleterow(1)
+loop
+
+if this._pse_dict_filter( ads_dictionary, "" ) = -1 then return -1
+
+return ll_rc
+
+end function
+
+public function integer deletedata (ref datastore ads_dictionary, string as_deleteexp);return this._pse_dict_delete_entries( ads_dictionary, as_deleteexp )
+
 end function
 
 on n_cst_dps_pse.create
