@@ -171,6 +171,8 @@ public function integer sortdata (datastore ads_dictionary, string as_sort)
 public function integer sortdata (string as_sort)
 private function long _pse_dict_delete_entries (ref datastore ads_dictionary, string as_deleteexp)
 public function integer deletedata (ref datastore ads_dictionary, string as_deleteexp)
+public function long setdata (datastore ads_datadictionary, string as_filter, string as_column, string as_value)
+public function long getdata (datastore ads_datadictionary, string as_filter, string as_column, ref any as_value[])
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -1698,6 +1700,40 @@ return ll_rc
 end function
 
 public function integer deletedata (ref datastore ads_dictionary, string as_deleteexp);return this._pse_dict_delete_entries( ads_dictionary, as_deleteexp )
+
+end function
+
+public function long setdata (datastore ads_datadictionary, string as_filter, string as_column, string as_value);long	ll_limit
+long	ll_i
+
+ll_limit = this._pse_dict_filter( ads_datadictionary , as_filter )
+if   ll_limit = -1 then return -1
+if this.ismissing( as_column ) then return -1
+
+for ll_i = 1 to ll_limit
+	if ads_datadictionary.setitem( ll_i, as_column, as_value ) = -1 then return -1
+next
+
+this._pse_dict_filter( ads_datadictionary , "" )
+
+return ll_limit
+
+end function
+
+public function long getdata (datastore ads_datadictionary, string as_filter, string as_column, ref any as_value[]);long	ll_limit
+long	ll_i
+
+ll_limit = this._pse_dict_filter( ads_datadictionary , as_filter )
+if   ll_limit = -1 then return -1
+if this.ismissing( as_column ) then return -1
+
+for ll_i = 1 to ll_limit
+	as_value[ll_i] =  ads_datadictionary.GetitemString( ll_i, as_column )
+next
+
+this._pse_dict_filter( ads_datadictionary , "" )
+
+return ll_limit
 
 end function
 
