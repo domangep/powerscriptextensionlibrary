@@ -17,11 +17,19 @@ constant integer	DICT_TXT 	= 2
 constant integer	DICT_CSV 	= 3
 constant integer	DICT_XML 	= 4
 
+constant integer	DIR_RW_FILES 				= 0
+constant integer	DIR_RO_FILES		 			= 1
+constant integer	DIR_HIDDEN_FILES 			= 2
+constant integer	DIR_SYSTEM_FILES 			= 4
+constant integer	DIR_SUBDIR_FILES 			= 16
+constant integer	DIR_ARCHIVE_FILES 			= 32
+constant integer	DIR_DRIVES			 			= 16384
+constant integer	DIR_EXCLUDE_RW_FILES 	= 32768
+
 Private:
 string		_pse_release
 
 end variables
-
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
 public function integer isnull (ref integer ai_value, integer ai_ifnullvalue)
@@ -173,6 +181,7 @@ private function long _pse_dict_delete_entries (ref datastore ads_dictionary, st
 public function integer deletedata (ref datastore ads_dictionary, string as_deleteexp)
 public function long setdata (datastore ads_datadictionary, string as_filter, string as_column, string as_value)
 public function long getdata (datastore ads_datadictionary, string as_filter, string as_column, ref any as_value[])
+public function integer getdirectorycontent (string as_spec, ref string as_content[], integer ai_filetypes)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -1735,6 +1744,72 @@ this._pse_dict_filter( ads_datadictionary , "" )
 
 return ll_limit
 
+end function
+
+public function integer getdirectorycontent (string as_spec, ref string as_content[], integer ai_filetypes);//////////////////////////////////////////////////////////////////////////////
+//
+// Function:		getdirectorycontent
+//
+// Access:			Public
+//
+// Arguments:
+// as_spec:		The path and/or file specifications to list
+// as_content[]:			The array of string variables that will holds the
+//						specified directory contents.
+// ai_filetypes:			Combines the available file types to take into
+//						account by adding following values:
+//						- DIR_RW_FILES (0)
+//						- DIR_RO_FILES (1)
+//						- DIR_HIDDEN_FILES (2)
+//						- DIR_SYSTEM_FILES (4)
+//						- DIR_SUBDIR_FILES (16)
+//						- DIR_ARCHIVE_FILES (32)
+//						- DIR_DRIVES (16384)
+//						- DIR_EXCLUDE_RW_FILES (32768)
+//
+// Returns:			integer
+//						The number of entries found, or
+//						-1, if an error occurs.
+//
+// Description:	Store  the content of the specified directory according
+//						to the given specifications and files types into
+//						specified array of string.
+//
+// Usage:			Call this method to get a directory list without having
+//							to handle a listbox control
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Revision History
+//
+// Version
+//	1.0	Initial version
+//////////////////////////////////////////////////////////////////////////////
+
+integer	li_i
+integer	li_limit
+window 	lw_tmp
+listbox	lb_tmp
+
+if this.ismissing( as_spec ) then return -1
+if this.ismissing( ai_filetypes ) then return -1
+
+open(lw_tmp)
+lw_tmp.visible = false
+lw_tmp.openuserobject(lb_tmp)
+
+lb_tmp.dirlist( as_spec, ai_filetypes )
+
+li_limit = lb_tmp.totalitems()
+
+for li_i = li_limit to 1 step -1
+	as_content[] [li_i] = lb_tmp.text(li_i)
+next
+
+lw_tmp.closeuserobject( lb_tmp )
+close(lw_tmp)
+
+return li_limit
 end function
 
 on n_cst_dps_pse.create
