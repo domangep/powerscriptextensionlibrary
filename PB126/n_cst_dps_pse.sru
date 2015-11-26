@@ -12,6 +12,21 @@ end type
 
 type variables
 Public:
+privatewrite blob			NULL_BLOB
+privatewrite boolean		NULL_BOOLEAN
+privatewrite char			NULL_CHAR
+privatewrite date			NULL_DATE
+privatewrite datetime		NULL_DATETIME
+privatewrite dec			NULL_DEC
+privatewrite int         		NULL_INT
+privatewrite long			NULL_LONG
+privatewrite longlong		NULL_LONGLONG
+privatewrite real			NULL_REAL
+privatewrite string			NULL_STRING
+privatewrite time			NULL_TIME
+privatewrite uint         	NULL_UINT
+privatewrite ulong			NULL_ULONG
+
 constant integer	DICT_INI		= 1
 constant integer	DICT_TXT 	= 2
 constant integer	DICT_CSV 	= 3
@@ -182,6 +197,8 @@ public function integer deletedata (ref datastore ads_dictionary, string as_dele
 public function long setdata (datastore ads_datadictionary, string as_filter, string as_column, string as_value)
 public function long getdata (datastore ads_datadictionary, string as_filter, string as_column, ref any as_value[])
 public function integer getdirectorycontent (string as_spec, ref string as_content[], integer ai_filetypes)
+public function boolean typeexists (string as_classname)
+private subroutine _pse_set_nullconstants ()
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -1812,6 +1829,29 @@ close(lw_tmp)
 return li_limit
 end function
 
+public function boolean typeexists (string as_classname);classdefinition lcdef
+
+lcdef = findclassdefinition( as_classname )
+
+return #.isnotnullandvalid( lcdef )
+end function
+
+private subroutine _pse_set_nullconstants ();SetNull( null_blob )
+SetNull( null_boolean )
+SetNull( null_char )
+SetNull( null_date )
+SetNull( null_datetime )
+SetNull( null_dec )
+SetNull( null_int )
+SetNull( null_long )
+SetNull( null_longlong )
+SetNull( null_real )
+SetNull( null_string )
+SetNull( null_time )
+SetNull( null_uint)
+SetNull( null_ulong )
+end subroutine
+
 on n_cst_dps_pse.create
 call super::create
 this.ids_dictionary=create ids_dictionary
@@ -1889,7 +1929,8 @@ etc.
 
   SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE-SAMPLE */
   
-
+  
+_pse_set_nullconstants( )
 end event
 
 type ids_dictionary from datastore within n_cst_dps_pse descriptor "pb_nvo" = "true" 
