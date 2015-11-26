@@ -45,6 +45,7 @@ Private:
 string		_pse_release
 
 end variables
+
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
 public function integer isnull (ref integer ai_value, integer ai_ifnullvalue)
@@ -1156,17 +1157,12 @@ public function integer loaddata (ref datastore ads_dictionary, string as_filena
 
 end function
 
-public function integer loaddata (ref datastore ads_dictionary, string as_filename);integer li_null
-setnull(li_null)
-
-return this._pse_dict_load( ads_dictionary, "" , as_filename , li_null, true )
+public function integer loaddata (ref datastore ads_dictionary, string as_filename);return this._pse_dict_load( ads_dictionary, "" , as_filename , #.NULL_INT, true )
 
 end function
 
-public function integer loaddata (ref datastore ads_dictionary, string as_filename, boolean ab_append);integer li_null
-setnull(li_null)
-
-return this._pse_dict_load( ads_dictionary, "" , as_filename , li_null, ab_append )
+public function integer loaddata (ref datastore ads_dictionary, string as_filename, boolean ab_append);
+return this._pse_dict_load( ads_dictionary, "" , as_filename , #.NULL_INT, ab_append )
 
 end function
 
@@ -1243,24 +1239,15 @@ public function integer savedata (ref datastore ads_dictionary, string as_filena
 
 end function
 
-public function integer savedata (ref datastore ads_dictionary, string as_filename);integer li_null
-setnull(li_null)
-
-return this._pse_dict_save( ads_dictionary, "" , as_filename , li_null )
+public function integer savedata (ref datastore ads_dictionary, string as_filename);return this._pse_dict_save( ads_dictionary, "" , as_filename , #.NULL_INT )
 
 end function
 
-public function integer savedata (ref datastore ads_dictionary, string as_dictionary, string as_filename);integer li_null
-setnull(li_null)
-
-return this._pse_dict_save( ads_dictionary, as_dictionary , as_filename , li_null )
+public function integer savedata (ref datastore ads_dictionary, string as_dictionary, string as_filename);return this._pse_dict_save( ads_dictionary, as_dictionary , as_filename , #.NULL_INT )
 
 end function
 
-public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, boolean ab_append);integer li_null
-setnull( li_null )
-
-return this._pse_dict_load( ads_dictionary, as_dictionary , as_filename , li_null, true )
+public function integer loaddata (ref datastore ads_dictionary, string as_dictionary, string as_filename, boolean ab_append);return this._pse_dict_load( ads_dictionary, as_dictionary , as_filename , #.NULL_INT, true )
 
 end function
 
@@ -1471,10 +1458,7 @@ end function
 public function integer setdata (string as_dictionary, string as_key, any aa_value);return this.setdata( ids_dictionary, as_dictionary, as_key, aa_value )
 end function
 
-public function integer loaddata (string as_dictionary, string as_filename, boolean ab_append);integer li_null
-setnull( li_null )
-
-return this._pse_dict_load( ids_dictionary, as_dictionary , as_filename , li_null, true )
+public function integer loaddata (string as_dictionary, string as_filename, boolean ab_append);return this._pse_dict_load( ids_dictionary, as_dictionary , as_filename , #.NULL_INT, true )
 
 end function
 
@@ -1482,17 +1466,11 @@ public function integer loaddata (string as_dictionary, string as_filename, inte
 
 end function
 
-public function integer loadata (string as_filename);integer li_null
-setnull(li_null)
-
-return this._pse_dict_load( ids_dictionary, "" , as_filename , li_null, true )
+public function integer loadata (string as_filename);return this._pse_dict_load( ids_dictionary, "" , as_filename , #.NULL_INT, true )
 
 end function
 
-public function integer loadata (string as_filename, boolean ab_append);integer li_null
-setnull(li_null)
-
-return this._pse_dict_load( ids_dictionary, "" , as_filename , li_null, ab_append )
+public function integer loadata (string as_filename, boolean ab_append);return this._pse_dict_load( ids_dictionary, "" , as_filename , #.NULL_INT, ab_append )
 
 end function
 
@@ -1500,10 +1478,7 @@ public function integer loadata (string as_dictionary, string as_filename, integ
 
 end function
 
-public function integer savedata (string as_dictionary, string as_filename);integer li_null
-setnull(li_null)
-
-return this._pse_dict_save( ids_dictionary, as_dictionary , as_filename , li_null )
+public function integer savedata (string as_dictionary, string as_filename);return this._pse_dict_save( ids_dictionary, as_dictionary , as_filename , #.NULL_INT )
 
 end function
 
@@ -1511,10 +1486,7 @@ public function integer savedata (string as_dictionary, string as_filename, inte
 
 end function
 
-public function integer savedata (string as_filename);integer li_null
-setnull(li_null)
-
-return this._pse_dict_save( ids_dictionary, "" , as_filename , li_null )
+public function integer savedata (string as_filename);return this._pse_dict_save( ids_dictionary, "" , as_filename , #.NULL_INT )
 
 end function
 
