@@ -1,0 +1,11 @@
+Save Format v3.0(19990112)
+@begin Libraries
+ "dps_pse_g2_126.pbl" "";
+@end;
+@begin Objects
+ "null_datetime.srf" "dps_pse_g2_126.pbl";
+ "null_decimal.srf" "dps_pse_g2_126.pbl";
+ "null_double.srf" "dps_pse_g2_126.pbl";
+ "null_string.srf" "dps_pse_g2_126.pbl";
+ "null_time.srf" "dps_pse_g2_126.pbl";
+@end;
