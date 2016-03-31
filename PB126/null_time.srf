@@ -1,0 +1,15 @@
+HA$PBExportHeader$null_time.srf
+global type null_time from function_object
+end type
+
+forward prototypes
+global function double null_time ()
+end prototypes
+
+global function double null_time ();double ldbl_null
+Setnull(ldbl_null)
+
+return ldbl_null
+
+end function
+

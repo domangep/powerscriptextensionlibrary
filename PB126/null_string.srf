@@ -1,0 +1,15 @@
+HA$PBExportHeader$null_string.srf
+global type null_string from function_object
+end type
+
+forward prototypes
+global function string null_string ()
+end prototypes
+
+global function string null_string ();string ls_null
+Setnull(ls_null)
+
+return ls_null
+
+end function
+

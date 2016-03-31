@@ -1,0 +1,15 @@
+HA$PBExportHeader$null_decimal.srf
+global type null_decimal from function_object
+end type
+
+forward prototypes
+global function decimal null_decimal ()
+end prototypes
+
+global function decimal null_decimal ();decimal ldec_null
+Setnull(ldec_null)
+
+return ldec_null
+
+end function
+

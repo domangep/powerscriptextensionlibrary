@@ -1,0 +1,15 @@
+HA$PBExportHeader$null_double.srf
+global type null_double from function_object
+end type
+
+forward prototypes
+global function double null_double ()
+end prototypes
+
+global function double null_double ();double ldbl_null
+Setnull(ldbl_null)
+
+return ldbl_null
+
+end function
+
