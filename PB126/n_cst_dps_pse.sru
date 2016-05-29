@@ -27,6 +27,8 @@ privatewrite time			NULL_TIME
 privatewrite uint         	NULL_UINT
 privatewrite ulong			NULL_ULONG
 
+privatewrite long	iInFoundPos
+
 constant integer	DICT_INI		= 1
 constant integer	DICT_TXT 	= 2
 constant integer	DICT_CSV 	= 3
@@ -45,7 +47,6 @@ Private:
 string		_pse_release
 
 end variables
-
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
 public function integer isnull (ref integer ai_value, integer ai_ifnullvalue)
@@ -130,13 +131,13 @@ public function byte iif (boolean ab_exp, byte abte_true, byte abte_false)
 public function boolean iif (boolean ab_exp, boolean ab_true, boolean ab_false)
 public function boolean iin (any aa_val, any aa_array[])
 public function boolean iin (powerobject apo_val, powerobject apo_array[])
-public function boolean iin (char ac_val, char ac_array[])
+public function boolean iin (character ac_val, character ac_array[])
 public function boolean iin (string as_val, string as_array[])
 public function boolean iin (integer ai_val, integer ai_array[])
-public function boolean iin (uint aui_val, uint aui_array[])
+public function boolean iin (unsignedinteger aui_val, unsignedinteger aui_array[])
 public function boolean iin (long al_val, long al_array[])
 public function boolean iin (longlong all_val, longlong all_array[])
-public function boolean iin (ulong aul_val, ulong aul_array[])
+public function boolean iin (unsignedlong aul_val, unsignedlong aul_array[])
 public function boolean iin (double adbl_val, double adbl_array[])
 public function boolean iin (real ar_val, real ar_array[])
 public function boolean iin (date ad_val, date ad_array[])
@@ -200,6 +201,10 @@ public function long getdata (datastore ads_datadictionary, string as_filter, st
 public function integer getdirectorycontent (string as_spec, ref string as_content[], integer ai_filetypes)
 public function boolean typeexists (string as_classname)
 private subroutine _pse_set_nullconstants ()
+public function integer filetoblob (string as_filename, ref blob ablb_file)
+public function string filetostring (string as_filename, string as_eol_separator)
+public function integer stringtoarray (readonly string as_source, readonly string as_delimiter, ref string as_array[])
+public function integer stringtofile (string as_filename, readonly string as_string)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -672,9 +677,14 @@ integer	li_limit
 if this.ismissing( aa_val) then return false
 if this.isempty(  aa_array, li_limit ) then return false
 
+iInFoundPos = 0
+
 for li_i = 1 to li_limit
-	if aa_val = aa_array[li_i] then return true
-next
+	if aa_val = aa_array[li_i] then
+		iInFoundPos = li_i
+		return true
+	end if
+next		
 
 return false
 
@@ -686,22 +696,30 @@ integer	li_limit
 if this.ismissing( apo_val) then return false
 if this.isempty(  apo_array, li_limit ) then return false
 
+iInFoundPos=0
 for li_i = 1 to li_limit
-	if apo_val = apo_array[li_i] then return true
+	if apo_val = apo_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
 
 end function
 
-public function boolean iin (char ac_val, char ac_array[]);integer	li_i
+public function boolean iin (character ac_val, character ac_array[]);integer	li_i
 integer	li_limit
 
 if this.ismissing( ac_val) then return false
 if this.isempty(  ac_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if ac_val = ac_array[li_i] then return true
+	if ac_val = ac_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -714,8 +732,12 @@ integer	li_limit
 if this.ismissing( as_val) then return false
 if this.isempty(  as_array, li_limit ) then return false
 
+iInFoundPos= 0
 for li_i = 1 to li_limit
-	if as_val = as_array[li_i] then return true
+	if as_val = as_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -728,22 +750,30 @@ integer	li_limit
 if this.ismissing( ai_val) then return false
 if this.isempty(  ai_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if ai_val = ai_array[li_i] then return true
+	if ai_val = ai_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
 
 end function
 
-public function boolean iin (uint aui_val, uint aui_array[]);integer	li_i
+public function boolean iin (unsignedinteger aui_val, unsignedinteger aui_array[]);integer	li_i
 integer	li_limit
 
 if this.ismissing( aui_val) then return false
 if this.isempty(  aui_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if aui_val = aui_array[li_i] then return true
+	if aui_val = aui_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -756,8 +786,12 @@ integer	li_limit
 if this.ismissing( al_val) then return false
 if this.isempty(  al_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if al_val = al_array[li_i] then return true
+	if al_val = al_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -770,22 +804,30 @@ integer	li_limit
 if this.ismissing( all_val) then return false
 if this.isempty(  all_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if all_val = all_array[li_i] then return true
+	if all_val = all_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
 
 end function
 
-public function boolean iin (ulong aul_val, ulong aul_array[]);integer	li_i
+public function boolean iin (unsignedlong aul_val, unsignedlong aul_array[]);integer	li_i
 integer	li_limit
 
 if this.ismissing( aul_val) then return false
 if this.isempty(  aul_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if aul_val = aul_array[li_i] then return true
+	if aul_val = aul_array[li_i] then 
+		iInFoundPos =  li_i
+		return true
+	end if
 next
 
 return false
@@ -798,8 +840,12 @@ integer	li_limit
 if this.ismissing( adbl_val) then return false
 if this.isempty(  adbl_array, li_limit ) then return false
 
+iInFoundPos=0
 for li_i = 1 to li_limit
-	if adbl_val = adbl_array[li_i] then return true
+	if adbl_val = adbl_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -812,8 +858,12 @@ integer	li_limit
 if this.ismissing( ar_val) then return false
 if this.isempty(  ar_array, li_limit ) then return false
 
+iInFoundPos=0
 for li_i = 1 to li_limit
-	if ar_val = ar_array[li_i] then return true
+	if ar_val = ar_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -826,8 +876,12 @@ integer	li_limit
 if this.ismissing( ad_val) then return false
 if this.isempty(  ad_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if ad_val = ad_array[li_i] then return true
+	if ad_val = ad_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -840,8 +894,12 @@ integer	li_limit
 if this.ismissing( adt_val) then return false
 if this.isempty(  adt_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if adt_val = adt_array[li_i] then return true
+	if adt_val = adt_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -854,8 +912,12 @@ integer	li_limit
 if this.ismissing( at_val) then return false
 if this.isempty(  at_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if at_val = at_array[li_i] then return true
+	if at_val = at_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -868,8 +930,12 @@ integer	li_limit
 if this.ismissing( adec_val) then return false
 if this.isempty(  adec_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if adec_val = adec_array[li_i] then return true
+	if adec_val = adec_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -882,8 +948,12 @@ integer	li_limit
 if this.ismissing( ablob_val) then return false
 if this.isempty(  ablob_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if ablob_val = ablob_array[li_i] then return true
+	if ablob_val = ablob_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -896,8 +966,12 @@ integer	li_limit
 if this.ismissing( abte_val) then return false
 if this.isempty(  abte_array, li_limit ) then return false
 
+iInFoundPos = 0
 for li_i = 1 to li_limit
-	if abte_val = abte_array[li_i] then return true
+	if abte_val = abte_array[li_i] then 
+		iInFoundPos = li_i
+		return true
+	end if
 next
 
 return false
@@ -1823,6 +1897,123 @@ SetNull( null_time )
 SetNull( null_uint)
 SetNull( null_ulong )
 end subroutine
+
+public function integer filetoblob (string as_filename, ref blob ablb_file);Blob 	lblb_Temp
+Long 	ll_FileNo
+Long	ll_CharsRead
+Long	ll_Loops
+Long	ll_I
+Long	ll_FLen
+
+if this.ismissing( as_filename ) then return -1
+If NOT FileExists( as_FileName ) Then Return -1
+
+SetPointer(HourGlass!)
+
+// Get the file length, and open the file
+ll_FLen = FileLength( as_Filename )
+ll_FileNo = FileOpen( as_FileName, StreamMode!, Read! )
+If ll_FileNo < 0 Then
+	Return -1
+End If
+
+// Reset the passed in variable
+ablb_File = lblb_Temp
+
+// Determine how many times to call FileRead 
+IF ll_FLen > 32765 THEN
+	IF Mod( ll_FLen, 32765 ) = 0 THEN
+		ll_Loops = ll_FLen / 32765
+	ELSE
+		ll_Loops = ( ll_FLen / 32765 ) + 1
+	END IF
+ELSE
+	ll_Loops = 1
+END IF
+
+FOR ll_I = 1 TO ll_Loops
+	ll_CharsRead = FileRead( ll_FileNo , lblb_Temp )
+	ablb_File += lblb_Temp
+NEXT
+
+return FileClose(ll_FileNo)
+end function
+
+public function string filetostring (string as_filename, string as_eol_separator);long	ll_FileNo
+long 	ll_CharsRead
+string	ls_Temp
+string	ls_file
+
+if this.IsMissing( as_filename ) then return this.null_string
+if NOT FileExists( as_FileName ) Then return this.null_string
+
+if this.IsMissing( as_eol_separator ) then
+	as_eol_separator = '~r~n'
+end if
+
+ll_FileNo = FileOpen( as_FileName, LineMode!, Read! )
+If ll_FileNo < 0 Then return this.null_string
+
+ll_CharsRead = FileRead( ll_FileNo, ls_Temp )
+Do While ll_CharsRead >= 0
+	ls_File += ls_Temp + as_eol_separator
+	ll_CharsRead = FileRead( ll_FileNo , ls_Temp )
+Loop
+
+if FileClose(ll_FileNo) = -1 then return this.null_string
+
+Return ls_File
+end function
+
+public function integer stringtoarray (readonly string as_source, readonly string as_delimiter, ref string as_array[]);Long	ll_Pos
+Long	ll_i
+Long	ll_Len
+Long	ll_Last
+
+ll_Last = 1
+ll_Len = Len( as_delimiter )
+IF ll_Len = 0 OR Len( as_Source ) = 0 THEN RETURN 0
+ll_Pos = Pos( as_Source, as_delimiter )
+DO WHILE TRUE
+	ll_i ++
+	IF ll_Pos = 0 THEN
+		as_array[ ll_i ] = Mid( as_Source, ll_Last, Len( as_Source ) - ll_Last + 1 )
+	ELSE
+		as_array[ ll_i ] = Mid( as_Source, ll_Last, ll_Pos - ll_Last )
+	END IF
+	
+	IF ll_Pos = 0 THEN EXIT
+	
+	ll_Last = ll_Pos + ll_Len
+	ll_Pos = Pos( as_Source, as_delimiter, ll_Pos + ll_Len )
+LOOP
+
+RETURN ll_i
+end function
+
+public function integer stringtofile (string as_filename, readonly string as_string);Long	ll_FileNo
+Long	ll_StrLen
+Long	ll_Start = 1
+string	ls_Temp
+string	ls_File
+string	ls_Text
+
+if this.IsMissing( as_filename ) then return -1
+if not FileExists( as_filename ) then return -1
+
+ll_FileNo = FileOpen( as_FileName,  StreamMode!, Write!, LockWrite!, Replace! )
+If ll_FileNo < 0 Then return -1
+
+ll_StrLen = Len( as_String )
+DO WHILE ll_Start < ll_StrLen
+	ls_Text = Mid( as_string, ll_Start, 32765 )
+	FileWrite( ll_FileNo, ls_Text )
+
+	ll_Start += 32765
+LOOP
+
+return FileClose( ll_FileNo )
+end function
 
 on n_cst_dps_pse.create
 call super::create
