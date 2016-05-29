@@ -47,6 +47,7 @@ Private:
 string		_pse_release
 
 end variables
+
 forward prototypes
 public function any isnull (ref any aa_value, any aa_ifnullvalue)
 public function integer isnull (ref integer ai_value, integer ai_ifnullvalue)
@@ -205,6 +206,7 @@ public function integer filetoblob (string as_filename, ref blob ablb_file)
 public function string filetostring (string as_filename, string as_eol_separator)
 public function integer stringtoarray (readonly string as_source, readonly string as_delimiter, ref string as_array[])
 public function integer stringtofile (string as_filename, readonly string as_string)
+public function integer arraytostring (readonly any aa_array[], ref string as_string, string as_delimiter)
 end prototypes
 
 public function any isnull (ref any aa_value, any aa_ifnullvalue);if isnull( aa_value ) then
@@ -2013,6 +2015,28 @@ DO WHILE ll_Start < ll_StrLen
 LOOP
 
 return FileClose( ll_FileNo )
+end function
+
+public function integer arraytostring (readonly any aa_array[], ref string as_string, string as_delimiter);any		la_entry
+integer	li_i
+integer 	li_limit
+string		ls_tmp
+
+
+if this.IsEmpty( aa_array, li_limit ) then return -1
+
+this.IsNull( as_delimiter, "~t" )
+
+for li_i = 1 to li_limit
+	la_entry = aa_array[li_i]
+	ls_tmp += this.IsNull( la_entry, "" )
+	if li_i < li_limit then ls_tmp += as_delimiter
+next
+
+as_string = ls_tmp
+
+return li_limit
+
 end function
 
 on n_cst_dps_pse.create
